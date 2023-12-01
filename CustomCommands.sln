@@ -3,14 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpawnProtection", "SpawnProtection\SpawnProtection.csproj", "{DBAE0443-7660-456C-B185-444366A42766}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeaponBalance", "WeaponBalance\WeaponBalance.csproj", "{C4B486A3-D8FC-41AC-827E-905BAFF50A9D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rank", "Rank\Rank.csproj", "{A590C358-C1B2-4F21-B9B0-FE56B6562F39}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoLegs", "NoLegs\NoLegs.csproj", "{8BF8B3C3-FE3F-459E-B414-72469816539A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomCommands", "CustomCommands\CustomCommands.csproj", "{CFD687D3-02AF-4F8B-B561-ED01C4B2C5D3}"
 EndProject
 Global
