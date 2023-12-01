@@ -9,17 +9,16 @@ Create your custom commands in ./plugins/CustomCommands/Commands.json
   {
     "Title": "Discord",
     "Command": "discord",
-    "Message": "{GREEN}Discord: https://discord.gg/H9KKjMeZsM",
+    "Message": "{GREEN}Discord: <link>",
     "CenterMessage": "",
     "PrintTo": 0,
     "Description": "Command for Discord"
   },
   {
     "Title": "Steam",
-    "Command": "steam",
-    "Message": "SteamGroup: https://steamcommunity.com/groups/OrizonSurf",
-    "CenterMessage": "<div>Discord</div><br>
-	<div><font color='#00ff00'>https://steamcommunity.com/groups/OrizonSurf</font></div>",
+    "Command": "steam,steamgroup,group",
+    "Message": "SteamGroup: <link>",
+    "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
     "PrintTo": 7,
     "Description": "Command for SteamGroup"
   }

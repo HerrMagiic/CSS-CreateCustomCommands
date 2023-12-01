@@ -38,7 +38,7 @@ namespace CustomCommands
             Console.WriteLine(
                 $"CustomCommands has been loaded, and the hot reload flag was {hotReload}, path is {ModulePath}");
 
-            
+
             var json = System.IO.File.ReadAllText(Path.Combine(ModuleDirectory, "Commands.json"));
             var comms = JsonSerializer.Deserialize<List<Commands>>(json);
 
@@ -46,57 +46,62 @@ namespace CustomCommands
             {
                 foreach (var com in comms)
                 {
-                    AddCommand(com.Command, com.Description, (player, info) =>
+                    string[] aliases = com.Command.Split(',');
+
+                    for (int i = 0; i < aliases.Length; i++)
                     {
-                        if (player == null) return;
-
-                        string message = ReplaceColorTags(com.Message);
-
-                        switch (com.PrintTo)
+                        AddCommand(aliases[i], com.Description, (player, info) =>
                         {
-                            case Sender.ClientChat:
-                                player.PrintToChat(Config.Prefix + message);
+                            if (player == null) return;
 
-                                break;
-                            case Sender.AllChat:
-                                Server.PrintToChatAll(Config.Prefix + message);
+                            string message = ReplaceColorTags(com.Message);
 
-                                break;
-                            case Sender.ClientCenter:
-                                player.PrintToCenterHtml(com.CenterMessage);
+                            switch (com.PrintTo)
+                            {
+                                case Sender.ClientChat:
+                                    player.PrintToChat(Config.Prefix + message);
 
-                                break;
-                            case Sender.AllCenter:
-                                foreach (var controller in PlayerList)
-                                    controller.PrintToCenterHtml(com.CenterMessage);
+                                    break;
+                                case Sender.AllChat:
+                                    Server.PrintToChatAll(Config.Prefix + message);
 
-                                break;
-                            case Sender.ClientChatClientCenter:
-                                player.PrintToChat(Config.Prefix + message);
-                                player.PrintToCenterHtml(com.CenterMessage);
+                                    break;
+                                case Sender.ClientCenter:
+                                    player.PrintToCenterHtml(com.CenterMessage);
 
-                                break;
-                            case Sender.ClientChatAllCenter:
-                                player.PrintToChat(Config.Prefix + message);
-                                foreach (var controller in PlayerList)
-                                    controller.PrintToCenterHtml(com.CenterMessage);
+                                    break;
+                                case Sender.AllCenter:
+                                    foreach (var controller in PlayerList)
+                                        controller.PrintToCenterHtml(com.CenterMessage);
 
-                                break;
-                            case Sender.AllChatClientCenter:
-                                Server.PrintToChatAll(Config.Prefix + message);
-                                player.PrintToCenterHtml(com.CenterMessage);
+                                    break;
+                                case Sender.ClientChatClientCenter:
+                                    player.PrintToChat(Config.Prefix + message);
+                                    player.PrintToCenterHtml(com.CenterMessage);
 
-                                break;
-                            case Sender.AllChatAllCenter:
-                                Server.PrintToChatAll(Config.Prefix + message);
-                                foreach (var controller in PlayerList)
-                                    controller.PrintToCenterHtml(com.CenterMessage);
+                                    break;
+                                case Sender.ClientChatAllCenter:
+                                    player.PrintToChat(Config.Prefix + message);
+                                    foreach (var controller in PlayerList)
+                                        controller.PrintToCenterHtml(com.CenterMessage);
 
-                                break;
-                            default:
-                                break;
-                        }
-                    });
+                                    break;
+                                case Sender.AllChatClientCenter:
+                                    Server.PrintToChatAll(Config.Prefix + message);
+                                    player.PrintToCenterHtml(com.CenterMessage);
+
+                                    break;
+                                case Sender.AllChatAllCenter:
+                                    Server.PrintToChatAll(Config.Prefix + message);
+                                    foreach (var controller in PlayerList)
+                                        controller.PrintToCenterHtml(com.CenterMessage);
+
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
                 }
             }
             else
