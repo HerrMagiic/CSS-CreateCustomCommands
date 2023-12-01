@@ -1,0 +1,18 @@
+[
+  {
+    "Title": "Discord",
+    "Command": "discord",
+    "Message": "{GREEN}Discord: https://discord.gg/H9KKjMeZsM",
+    "CenterMessage": "",
+    "PrintTo": 0,
+    "Description": "Command for Discord"
+  },
+  {
+    "Title": "Steam",
+    "Command": "steam",
+    "Message": "SteamGroup: https://steamcommunity.com/groups/OrizonSurf",
+    "CenterMessage": "<div>Discord</div><br><div><font color='#00ff00'>https://steamcommunity.com/groups/OrizonSurf</font></div>",
+    "PrintTo": 7,
+    "Description": "Command for SteamGroup"
+  }
+]
