@@ -12,7 +12,7 @@ namespace CustomCommands
     {
         public override string ModuleName => "CustomCommands";
 
-        public override string ModuleVersion => "1.0.0";
+        public override string ModuleVersion => "1.0.1";
 
         public override string ModuleAuthor => "HerrMagic";
 
