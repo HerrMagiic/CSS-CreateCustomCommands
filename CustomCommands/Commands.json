@@ -2,8 +2,9 @@
   {
     "Title": "Discord",
     "Command": "discord",
-    "Message": "{PREFIX}{GREEN}Discord: <link>",
+    "Message": "{PREFIX}{GREEN}Discord: \n <link>",
     "CenterMessage": "",
+    "CenterMessageTime": 4,
     "PrintTo": 0,
     "Description": "Command for Discord"
   },
@@ -12,6 +13,7 @@
     "Command": "steam,steamgroup,group",
     "Message": "SteamGroup: <link>",
     "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+    "CenterMessageTime": 10,
     "PrintTo": 7,
     "Description": "Command for SteamGroup"
   }

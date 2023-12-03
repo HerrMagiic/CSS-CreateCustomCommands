@@ -9,8 +9,9 @@ Create your custom commands in ./plugins/CustomCommands/Commands.json
   {
     "Title": "Discord",
     "Command": "discord",
-    "Message": "{GREEN}Discord: <link>",
+    "Message": "{PREFIX}{GREEN}Discord: \n <link>",
     "CenterMessage": "",
+    "CenterMessageTime": 1,
     "PrintTo": 0,
     "Description": "Command for Discord"
   },
@@ -19,6 +20,7 @@ Create your custom commands in ./plugins/CustomCommands/Commands.json
     "Command": "steam,steamgroup,group",
     "Message": "SteamGroup: <link>",
     "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+    "CenterMessageTime": 2,
     "PrintTo": 7,
     "Description": "Command for SteamGroup"
   }

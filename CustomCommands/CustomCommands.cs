@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace CustomCommands
 {
-    [MinimumApiVersion(86)]
+    [MinimumApiVersion(98)]
     public class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
     {
         public override string ModuleName => "CustomCommands";
@@ -22,10 +22,14 @@ namespace CustomCommands
 
         public CustomCommandsConfig Config { get; set; } = new();
 
+        private string PrefixCache = "";
+
         public void OnConfigParsed(CustomCommandsConfig config)
         {
             Config = config;
         }
+
+        
 
         public override void Load(bool hotReload)
         {
@@ -38,8 +42,10 @@ namespace CustomCommands
             Console.WriteLine(
                 $"CustomCommands has been loaded, and the hot reload flag was {hotReload}, path is {ModulePath}");
 
+            if (Config.Prefix != PrefixCache)
+                PrefixCache = ReplaceTags(Config.Prefix);
 
-            var json = System.IO.File.ReadAllText(Path.Combine(ModuleDirectory, "Commands.json"));
+            var json = File.ReadAllText(Path.Combine(ModuleDirectory, "Commands.json"));
             var comms = JsonSerializer.Deserialize<List<Commands>>(json);
 
             if (comms != null)
@@ -54,52 +60,8 @@ namespace CustomCommands
                         {
                             if (player == null) return;
 
-                            string message = ReplaceTags(com.Message);
+                            TriggerMessage(player, com);
 
-                            switch (com.PrintTo)
-                            {
-                                case Sender.ClientChat:
-                                    player.PrintToChat(message);
-
-                                    break;
-                                case Sender.AllChat:
-                                    Server.PrintToChatAll(message);
-
-                                    break;
-                                case Sender.ClientCenter:
-                                    player.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                case Sender.AllCenter:
-                                    foreach (var controller in PlayerList)
-                                        controller.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                case Sender.ClientChatClientCenter:
-                                    player.PrintToChat(message);
-                                    player.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                case Sender.ClientChatAllCenter:
-                                    player.PrintToChat(message);
-                                    foreach (var controller in PlayerList)
-                                        controller.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                case Sender.AllChatClientCenter:
-                                    Server.PrintToChatAll(message);
-                                    player.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                case Sender.AllChatAllCenter:
-                                    Server.PrintToChatAll(message);
-                                    foreach (var controller in PlayerList)
-                                        controller.PrintToCenterHtml(com.CenterMessage);
-
-                                    break;
-                                default:
-                                    break;
-                            }
                         });
                     }
                 }
@@ -111,6 +73,73 @@ namespace CustomCommands
                 InitializeLists();
         }
 
+        private void TriggerMessage(CCSPlayerController player, Commands cmd) 
+        {
+            switch (cmd.PrintTo)
+            {
+                case Sender.ClientChat:
+                    PrintToChat(Receiver.Client, player, cmd.Message);
+
+                    break;
+                case Sender.AllChat:
+                    PrintToChat(Receiver.Server, player, cmd.Message);
+
+                    break;
+                case Sender.ClientCenter:
+                    player.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                case Sender.AllCenter:
+                    foreach (var controller in PlayerList)
+                        controller.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                case Sender.ClientChatClientCenter:
+                    PrintToChat(Receiver.Client, player, cmd.Message);
+                    player.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                case Sender.ClientChatAllCenter:
+                    PrintToChat(Receiver.Client, player, cmd.Message);
+                    foreach (var controller in PlayerList)
+                        controller.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                case Sender.AllChatClientCenter:
+                    PrintToChat(Receiver.Server, player, cmd.Message);
+                    player.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                case Sender.AllChatAllCenter:
+                    PrintToChat(Receiver.Server, player, cmd.Message);
+                    foreach (var controller in PlayerList)
+                        controller.PrintToCenterHtml(cmd.CenterMessage, cmd.CenterMessageTime);
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        
+        private void PrintToChat(Receiver printToChat, CCSPlayerController player, string message)
+        {
+            string[] msg = ReplaceTags(message).Split("\\n");
+
+            switch (printToChat)
+            {
+                case Receiver.Client:
+                    foreach (var line in msg)
+                        player.PrintToChat(line);
+                    break;
+                case Receiver.Server:
+                    foreach (var line in msg)
+                        Server.PrintToChatAll(line);
+                    break;
+                default:
+                    break;
+            }
+        }
 
         private string ReplaceTags(string input)
         {
@@ -121,7 +150,7 @@ namespace CustomCommands
             };
             string[] replacements =
             {
-                ReplaceTags(Config.Prefix) ,"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E",
+                PrefixCache ,"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E",
                 "\x0A"
             };
 

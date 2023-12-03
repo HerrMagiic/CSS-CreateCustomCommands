@@ -8,12 +8,13 @@ namespace CustomCommands.Model
 {
     public class Commands
     {
-        public string Title { get; set; }
-        public string Command { get; set; }
-        public string Message { get; set; }
-        public string CenterMessage { get; set; }
-        public Sender PrintTo { get; set; }
-        public string Description { get; set; }
+        public string Title { get; set; } = "";
+        public string Command { get; set; } = "testtesttest";
+        public string Message { get; set; } = "testtesttest";
+        public string CenterMessage { get; set; } = "test";
+        public int CenterMessageTime { get; set; } = 1;
+        public Sender PrintTo { get; set; } = Sender.ClientChat;
+        public string Description { get; set; } = "Description";
     }
     public enum Sender
     {
