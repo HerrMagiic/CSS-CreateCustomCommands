@@ -54,7 +54,7 @@ namespace CustomCommands
                         {
                             if (player == null) return;
 
-                            string message = ReplaceColorTags(com.Message);
+                            string message = ReplaceTags(com.Message);
 
                             switch (com.PrintTo)
                             {
