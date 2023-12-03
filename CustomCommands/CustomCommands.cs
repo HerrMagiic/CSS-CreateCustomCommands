@@ -59,11 +59,11 @@ namespace CustomCommands
                             switch (com.PrintTo)
                             {
                                 case Sender.ClientChat:
-                                    player.PrintToChat(Config.Prefix + message);
+                                    player.PrintToChat(message);
 
                                     break;
                                 case Sender.AllChat:
-                                    Server.PrintToChatAll(Config.Prefix + message);
+                                    Server.PrintToChatAll(message);
 
                                     break;
                                 case Sender.ClientCenter:
@@ -76,23 +76,23 @@ namespace CustomCommands
 
                                     break;
                                 case Sender.ClientChatClientCenter:
-                                    player.PrintToChat(Config.Prefix + message);
+                                    player.PrintToChat(message);
                                     player.PrintToCenterHtml(com.CenterMessage);
 
                                     break;
                                 case Sender.ClientChatAllCenter:
-                                    player.PrintToChat(Config.Prefix + message);
+                                    player.PrintToChat(message);
                                     foreach (var controller in PlayerList)
                                         controller.PrintToCenterHtml(com.CenterMessage);
 
                                     break;
                                 case Sender.AllChatClientCenter:
-                                    Server.PrintToChatAll(Config.Prefix + message);
+                                    Server.PrintToChatAll(message);
                                     player.PrintToCenterHtml(com.CenterMessage);
 
                                     break;
                                 case Sender.AllChatAllCenter:
-                                    Server.PrintToChatAll(Config.Prefix + message);
+                                    Server.PrintToChatAll(message);
                                     foreach (var controller in PlayerList)
                                         controller.PrintToCenterHtml(com.CenterMessage);
 
@@ -111,21 +111,22 @@ namespace CustomCommands
                 InitializeLists();
         }
 
-        private string ReplaceColorTags(string input)
+
+        private string ReplaceTags(string input)
         {
-            string[] colorPatterns =
+            string[] patterns =
             {
-                "{DEFAULT}", "{RED}", "{LIGHTPURPLE}", "{GREEN}", "{LIME}", "{LIGHTGREEN}", "{LIGHTRED}", "{GRAY}",
+                "{PREFIX}", "{DEFAULT}", "{RED}", "{LIGHTPURPLE}", "{GREEN}", "{LIME}", "{LIGHTGREEN}", "{LIGHTRED}", "{GRAY}",
                 "{LIGHTOLIVE}", "{OLIVE}", "{LIGHTBLUE}", "{BLUE}", "{PURPLE}", "{GRAYBLUE}"
             };
-            string[] colorReplacements =
+            string[] replacements =
             {
-                "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E",
+                ReplaceTags(Config.Prefix) ,"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E",
                 "\x0A"
             };
 
-            for (var i = 0; i < colorPatterns.Length; i++)
-                input = input.Replace(colorPatterns[i], colorReplacements[i]);
+            for (var i = 0; i < patterns.Length; i++)
+                input = input.Replace(patterns[i], replacements[i]);
 
             return input;
         }

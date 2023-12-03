@@ -2,7 +2,7 @@
   {
     "Title": "Discord",
     "Command": "discord",
-    "Message": "{GREEN}Discord: <link>",
+    "Message": "{PREFIX}{GREEN}Discord: <link>",
     "CenterMessage": "",
     "PrintTo": 0,
     "Description": "Command for Discord"
