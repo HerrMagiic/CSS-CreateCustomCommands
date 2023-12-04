@@ -12,7 +12,7 @@ namespace CustomCommands;
 public class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "1.0.2";
+    public override string ModuleVersion => "1.0.3";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
@@ -135,7 +135,7 @@ public class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
     
     private void PrintToChat(Receiver printToChat, CCSPlayerController player, string message)
     {
-        string[] msg = ReplaceTags(message).Split("\\n");
+        string[] msg = ReplaceTags(message).Split('\n');
 
         switch (printToChat)
         {
