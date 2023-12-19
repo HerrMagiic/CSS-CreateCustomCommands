@@ -1,5 +1,6 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
 using CustomCommands.Model;
 
 namespace CustomCommands;
@@ -35,8 +36,20 @@ public partial class CustomCommands
             AddCommand(aliases[i], com.Description, (player, info) =>
             {
                 if (player == null) return;
+                RequiresPermissions(player, com.Permissions);
                 TriggerMessage(player, com);
+                ExecuteServerCommands(com);
             });
+        }
+    }
+
+    private void ExecuteServerCommands(Commands cmd) 
+    {
+        if (cmd.ServerCommands.Count == 0) return;
+
+        foreach (var serverCommand in cmd.ServerCommands)
+        {
+            Server.ExecuteCommand(serverCommand);
         }
     }
     private void TriggerMessage(CCSPlayerController player, Commands cmd) 
@@ -70,67 +83,6 @@ public partial class CustomCommands
             default:
                 break;
         }
-    }
-
-    private void PrintToCenterClient(CCSPlayerController player, Commands cmd)
-    {
-        var CenterClientElement = new CenterClientElement
-        {
-            ClientId = player.UserId!.Value,
-            Message = cmd.CenterMessage
-        };
-        centerClientOn.Add(CenterClientElement);
-        AddTimer(cmd.CenterMessageTime, () => centerClientOn.Remove(CenterClientElement));
-    }
-    private void PrintToAllCenter(Commands cmd)
-    {
-        centerServerOn.Message = cmd.CenterMessage;
-        centerServerOn.IsRunning = true;
-        AddTimer(cmd.CenterMessageTime, () =>
-        {
-            centerServerOn.IsRunning = false;
-        });
-    }
-
-    private void PrintToChatAndCenter(Receiver receiver, CCSPlayerController player, Commands cmd)
-    {
-        PrintToChat(receiver, player, cmd.Message);
-        PrintToCenterClient(player, cmd);
-    }
-
-    private void PrintToChatAndAllCenter(Receiver receiver, CCSPlayerController player, Commands cmd)
-    {
-        PrintToChat(receiver, player, cmd.Message);
-        PrintToAllCenter(cmd);
-    }
-    
-    private void PrintToChat(Receiver printToChat, CCSPlayerController player, string message)
-    {
-        string[] msg = ReplaceTags(message).Split('\n');
-
-        switch (printToChat)
-        {
-            case Receiver.Client:
-                PrintToChatClient(player, msg);
-                break;
-            case Receiver.Server:
-                PrintToChatServer(msg);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void PrintToChatClient(CCSPlayerController player, string[] msg)
-    {
-        foreach (var line in msg)
-            player.PrintToChat(line);
-    }
-
-    private void PrintToChatServer(string[] msg)
-    {
-        foreach (var line in msg)
-            Server.PrintToChatAll(line);
     }
 
     private string ReplaceTags(string input)
