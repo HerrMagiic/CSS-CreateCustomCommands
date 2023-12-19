@@ -66,3 +66,11 @@ Colors:
 | All Chat & All Center      | 7  |
 
 **Description**: What the Description for the command should be
+
+
+## Roadmap
+
+* [ ] Send Server Commands
+* [ ] Set permissions
+* [ ] On Off toggle
+* [ ] Allow Args
