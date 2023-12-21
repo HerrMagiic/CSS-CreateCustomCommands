@@ -13,7 +13,7 @@ public class Commands
 }
 public class PermissionsElement
 {
-    public bool ReguiresPermissionOr { get; set; } = false;
+    public bool ReguiresAllPermissions { get; set; } = false;
     public List<string> PermissionList { get; set; } = new();
 }
 public class CenterElement

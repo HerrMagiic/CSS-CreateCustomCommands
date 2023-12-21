@@ -36,10 +36,34 @@ public partial class CustomCommands
             AddCommand(aliases[i], com.Description, (player, info) =>
             {
                 if (player == null) return;
-                RequiresPermissions(player, com.Permissions);
+                if (!RequiresPermissions(player, com.Permissions)) 
+                    return;
+                
                 TriggerMessage(player, com);
                 ExecuteServerCommands(com);
             });
+        }
+    }
+
+    private bool RequiresPermissions(CCSPlayerController player, PermissionsElement permissions)
+    {
+        if (!permissions.ReguiresAllPermissions)
+        {
+            foreach (var permission in permissions.PermissionList)
+            {
+                if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) return true;
+            }
+            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+            return false;
+        }
+        else
+        {
+            if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
+            {
+                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+                return false;
+            }
+            return true;
         }
     }
 
