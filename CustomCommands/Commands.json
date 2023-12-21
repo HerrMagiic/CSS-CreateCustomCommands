@@ -35,7 +35,7 @@
       "sv_gravity 800.0"
     ],
     "Permission": {
-      "ReguiresPermissionOr": false,
+      "ReguiresAllPermissions": false,
       "PermissionList": [
         "@css/cvar",
         "@custom/permission",
