@@ -27,6 +27,7 @@ public partial class CustomCommands
 
         });
     }
+
     private void AddCommands(Commands com)
     {
         string[] aliases = com.Command.Split(',');
@@ -47,20 +48,21 @@ public partial class CustomCommands
 
     private bool RequiresPermissions(CCSPlayerController player, PermissionsElement permissions)
     {
-        if (!permissions.ReguiresAllPermissions)
+        if (permissions.ReguiresAllPermissions)
         {
             foreach (var permission in permissions.PermissionList)
             {
-                if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) return true;
+                if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) 
+                    return true;
             }
-            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command1");
             return false;
         }
         else
         {
             if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
             {
-                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command2");
                 return false;
             }
             return true;
