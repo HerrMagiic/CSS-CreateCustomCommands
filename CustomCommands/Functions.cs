@@ -38,8 +38,10 @@ public partial class CustomCommands
             AddCommand(aliases[i], com.Description, (player, info) =>
             {
                 if (player == null) return;
-                if (!RequiresPermissions(player, com.Permission)) 
-                    return;
+                
+                if (com.Permission.PermissionList.Count >= 1)
+                    if (!RequiresPermissions(player, com.Permission)) 
+                        return;
                 
                 TriggerMessage(player, com);
                 ExecuteServerCommands(com);
