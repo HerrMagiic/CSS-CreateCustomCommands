@@ -9,11 +9,11 @@ public class Commands
     public CenterElement CenterMessage { get; set; } = new();
     public required Sender PrintTo { get; set; } = Sender.ClientChat;
     public List<string> ServerCommands { get; set; } = new();
-    public PermissionsElement Permissions { get; set; } = new();
+    public Permission Permission { get; set; } = new();
 }
-public class PermissionsElement
+public class Permission
 {
-    public bool ReguiresPermissionOr { get; set; } = false;
+    public bool ReguiresAllPermissions { get; set; } = false;
     public List<string> PermissionList { get; set; } = new();
 }
 public class CenterElement
