@@ -1,6 +1,7 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CustomCommands.Model;
 
 namespace CustomCommands;
@@ -37,7 +38,7 @@ public partial class CustomCommands
             AddCommand(aliases[i], com.Description, (player, info) =>
             {
                 if (player == null) return;
-                if (!RequiresPermissions(player, com.Permissions)) 
+                if (!RequiresPermissions(player, com.Permission)) 
                     return;
                 
                 TriggerMessage(player, com);
@@ -46,23 +47,23 @@ public partial class CustomCommands
         }
     }
 
-    private bool RequiresPermissions(CCSPlayerController player, PermissionsElement permissions)
+    private bool RequiresPermissions(CCSPlayerController player, Permission permissions)
     {
-        if (permissions.ReguiresAllPermissions)
+        if (!permissions.ReguiresAllPermissions)
         {
             foreach (var permission in permissions.PermissionList)
             {
                 if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) 
                     return true;
             }
-            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command1");
+            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
             return false;
         }
         else
         {
             if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
             {
-                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command2");
+                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
                 return false;
             }
             return true;
