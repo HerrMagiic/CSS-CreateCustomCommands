@@ -39,7 +39,9 @@ public partial class CustomCommands
     
     private void PrintToChat(Receiver printToChat, CCSPlayerController player, string message)
     {
-        string[] msg = ReplaceTags(message).Split('\n');
+        string replaceTags = ReplaceMessageTags(message, player);
+        string replaceColorTags = ReplaceColorTags(replaceTags);
+        string[] msg = WrappedLine(replaceColorTags);
 
         switch (printToChat)
         {

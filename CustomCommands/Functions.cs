@@ -1,7 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
 
 namespace CustomCommands;
@@ -113,26 +116,62 @@ public partial class CustomCommands
                 break;
         }
     }
-
-    private string ReplaceTags(string input)
+    private string[] WrappedLine(string input)
     {
+        return input.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+    }
+
+    private string ReplaceMessageTags(string input, CCSPlayerController player)
+    {
+        SteamID steamId = new SteamID((ulong?)player.UserId!.Value ?? 0);
+
         Dictionary<string, string> replacements = new()
         {
             {"{PREFIX}", PrefixCache},
-            {"{DEFAULT}", "\x01"},
-            {"{RED}", "\x02"},
-            {"{LIGHTPURPLE}", "\x03"},
-            {"{GREEN}", "\x04"},
-            {"{LIME}", "\x05"},
-            {"{LIGHTGREEN}", "\x06"},
-            {"{LIGHTRED}", "\x07"},
-            {"{GRAY}", "\x08"},
-            {"{LIGHTOLIVE}", "\x09"},
-            {"{OLIVE}", "\x10"},
-            {"{LIGHTBLUE}", "\x0B"},
-            {"{BLUE}", "\x0C"},
-            {"{PURPLE}", "\x0E"},
-            {"{GRAYBLUE}", "\x0A"}
+            {"{MAP}", NativeAPI.GetMapName()},
+            {"{TIME}", DateTime.Now.ToString("HH:mm:ss")},
+            {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy")},
+            {"{PLAYERNAME}", player.PlayerName},
+            {"{STEAMID2}", steamId.SteamId2},
+            {"{STEAMID3}", steamId.SteamId3},
+            {"{STEAMID32}", steamId.SteamId32.ToString()},
+            {"{STEAMID64}", steamId.SteamId64.ToString()},
+            {"{SERVERNAME}", ConVar.Find("hostname")!.StringValue},
+            {"{IP}", ConVar.Find("ip")!.StringValue},
+            {"{PORT}", ConVar.Find("hostport")!.GetPrimitiveValue<int>().ToString()},
+            {"{MAXPLAYERS}", Server.MaxPlayers.ToString()},
+            {"{PLAYERS}",
+                Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString()}
+        };
+
+        foreach (var pair in replacements)
+            input = input.Replace(pair.Key, pair.Value);
+
+        return input;
+    }
+
+    private string ReplaceColorTags(string input)
+    {
+        Dictionary<string, string> replacements = new()
+        {
+            {"{DEFAULT}", "\u0001"},
+            {"{WHITE}", "\u0001"},
+            {"{DARKRED}", "\u0002"},
+            {"{RED}", "\x03"},
+            {"{LIGHTRED}", "\u000f"},
+            {"{GREEN}", "\u0004"},
+            {"{LIME}", "\u0006"},
+            {"{OLIVE}", "\u0005"},
+            {"{ORANGE}", "\u0010"},
+            {"{GOLD}", "\u0010"},
+            {"{YELLOW}", "\t"},
+            {"{BLUE}", "\v"},
+            {"{DARKBLUE}", "\f"},
+            {"{LIGHTPURPLE}", "\u0003"},
+            {"{PURPLE}", "\u000e"},
+            {"{SILVER}", $"{ChatColors.Silver}"},
+            {"{BLUEGREY}", "\x0A"},
+            {"{GREY}", "\x08"},
         };
 
         foreach (var pair in replacements)

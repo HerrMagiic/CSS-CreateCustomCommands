@@ -1,6 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -11,7 +12,7 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "1.0.5";
+    public override string ModuleVersion => "1.0.6";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
@@ -39,7 +40,7 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
             $"CustomCommands has been loaded, and the hot reload flag was {hotReload}, path is {ModulePath}");
 
         if (Config.Prefix != PrefixCache)
-            PrefixCache = ReplaceTags(Config.Prefix);
+            PrefixCache = Config.Prefix;
 
         var comms = LoadCommandsFromJson();
 
