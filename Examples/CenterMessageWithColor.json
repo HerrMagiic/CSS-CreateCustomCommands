@@ -1,0 +1,23 @@
+[
+    {
+        "Title": "Center Message with color",
+        "Description": "Center Message with color",
+        "Command": "colorcenter",
+        "CenterElement": {
+            "CenterMessage": "<font color='#00ff00'>Cool color here</font>",
+            "CenterMessageTime": 5 // Seconds
+        },
+        "PrintTo": 2
+    },
+    {
+        // HTML is possible but not css or js
+        "Title": "With html",
+        "Description": "With html",
+        "Command": "htmlcenter",
+        "CenterElement": {
+            "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+            "CenterMessageTime": 5 // Seconds
+        },
+        "PrintTo": 2
+    }
+]

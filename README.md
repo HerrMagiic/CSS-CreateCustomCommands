@@ -4,6 +4,8 @@
 
 The Custom Commands Plugin allows you to create and customize commands for your server. These commands can display messages, perform server-side actions, and more. The configuration for these commands is stored in the `Commands.json` file located in the `./plugins/CustomCommands/` directory.
 
+For more examples look here: [Examples](https://github.com/HerrMagiic/CSS-CreateCustomCommands/tree/main/Examples)
+
 ## Example Configuration
 
 ```json
@@ -105,6 +107,3 @@ Defines if the command requires specific permissions to execute:
 {DEFAULT}, {RED}, {LIGHTPURPLE}, {GREEN}, {LIME},
 {LIGHTGREEN}, {LIGHTRED}, {GRAY}, {LIGHTOLIVE},
 {OLIVE}, {LIGHTBLUE}, {BLUE}, {PURPLE}, {GRAYBLUE}
-
-
-
