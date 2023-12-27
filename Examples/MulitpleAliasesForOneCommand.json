@@ -1,0 +1,9 @@
+[
+    {
+        "Title": "Discord",
+        "Description": "Command for Discord link",
+        "Command": "discord,dc,Discord", // User can type !discord or /discord, !dc or /dc and !Discord or /discord in chat
+        "Message": "{PREFIX}Discord: https://discord.gg/Z9JfJ9Y57C",
+        "PrintTo": 0
+    }
+]
