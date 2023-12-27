@@ -3,12 +3,12 @@
         "Title": "Rainbow",
         "Description": "rainbow command",
         "Command": "rainbow",
-        "Message": "{RED}R{LIGHTRED}AINBOW", // \n is a new line
+        "Message": " {RED}R{ORANGE}A{YELLOW}I{GREEN}N{BLUE}B{DARKBLUE}O{PURPLE}W", 
         "PrintTo": 0
     },
     {
-        "Title": "Colors",
-        "Description": "Command for Discord",
+        "Title": "All Colors",
+        "Description": "This command displays all the colors that are available to use in the chat.",
         "Command": "colors",
         "Message": "{DEFAULT}1, {WHITE}2 \n {DARKRED}3, {RED}4, {LIGHTRED}5\n {GREEN}6, {LIME}7, {OLIVE}8\n {ORANGE}9, {GOLD}10, {YELLOW}11\n {BLUE}12, {DARKBLUE}13\n {LIGHTPURPLE}14 {PURPLE}15 \n, {GREY}18",
         "PrintTo": 0

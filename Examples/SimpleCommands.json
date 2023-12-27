@@ -5,12 +5,12 @@
         "Command": "ping", // User types !ping or /ping in chat | The slash hides the input from a user in chat
         "Message": "Pong!",
         "PrintTo": 0
-    }
+    },
     {
-        "Title": "Rainbow",
-        "Description": "rainbow command",
-        "Command": "rainbow",
-        "Message": "{RED}RAINBOW", // \n is a new line
+        "Title": "Test",
+        "Description": "Send test",
+        "Command": "test",
+        "Message": "test",
         "PrintTo": 0
     }
 ]

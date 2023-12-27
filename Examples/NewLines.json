@@ -10,7 +10,7 @@
         "Title": "Numbers",
         "Description": "From one to ten",
         "Command": "numbers",
-        "Message": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10", 
+        "Message": "1\n2\n3\n4\n5\n6\n7\n8\n9\r\n10", // \n or \r is a new line
         "PrintTo": 0
     }
 ]

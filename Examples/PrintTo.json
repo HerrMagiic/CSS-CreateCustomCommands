@@ -1,0 +1,80 @@
+[
+    {
+        "Title": "Client Chat",
+        "Description": "Client Chat message",
+        "Command": "clientchat",
+        "Message": "ClientChat", 
+        "PrintTo": 0
+    },
+    {
+        "Title": "All Chat",
+        "Description": "All Chat message",
+        "Command": "allchat",
+        "Message": "All Chat",
+        "PrintTo": 1
+    },
+    {
+        "Title": "Client Center",
+        "Description": "Client Center message",
+        "Command": "clientcenter",
+        "CenterElement": {
+            "CenterMessage": "Client Center",
+            "CenterMessageTime": 5 // Seconds
+        },
+        "PrintTo": 2
+    },
+    {
+        "Title": "All Center",
+        "Description": "All players Center message",
+        "Command": "allcenter",
+        "CenterElement": {
+            "CenterMessage": "All Center",
+            "CenterMessageTime": 7
+        },
+        "PrintTo": 3
+    },
+    {
+        "Title": "Client Chat & Client Center",
+        "Description": "Client Chat & Client Center message",
+        "Command": "CCCC",
+        "Message": "Client Chat",
+        "CenterElement": {
+            "CenterMessage": "Client Center",
+            "CenterMessageTime": 10
+        },
+        "PrintTo": 4
+    },
+    {
+        "Title": "Client Chat & All Center",
+        "Description": "Client Chat & All Center",
+        "Command": "CCAC",
+        "Message": "Client Chat",
+        "CenterElement": {
+            "CenterMessage": "All Center",
+            "CenterMessageTime": 3
+        },
+        "PrintTo": 5
+    },
+    {
+        "Title": "All Chat & Client Center",
+        "Description": "All Chat & Client Center",
+        "Command": "ACCC",
+        "Message": "All Chat",
+        "CenterElement": {
+            "CenterMessage": "Client Center",
+            "CenterMessageTime": 4
+        },
+        "PrintTo": 6
+    },
+    {
+        "Title": "All Chat & All Center",
+        "Description": "All Chat & All Center",
+        "Command": "ACAC",
+        "Message": "All Chat",
+        "CenterElement": {
+            "CenterMessage": "All Center",
+            "CenterMessageTime": 10
+        },
+        "PrintTo": 7
+    }
+]
