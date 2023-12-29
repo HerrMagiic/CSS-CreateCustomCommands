@@ -12,38 +12,45 @@ For more examples look here: [Examples](https://github.com/HerrMagiic/CSS-Create
 [
   {
     "Title": "Discord",
+    "Description": "Command for Discord",
     "Command": "discord",
     "Message": "{PREFIX}{GREEN}Discord: \n <link>",
-    "Description": "Command for Discord"
+    "PrintTo": 0
   },
   {
     "Title": "Steam",
+    "Description": "Command for SteamGroup",
     "Command": "steam,steamgroup,group",
     "Message": "SteamGroup: <link>",
-    "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
-    "CenterMessageTime": 2,
-    "PrintTo": 7,
-    "Description": "Command for SteamGroup"
+    "CenterMessage": {
+      "Message": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+      "Time": 10
+    },
+    "PrintTo": 7
   },
   {
     "Title": "Enable Surf",
     "Command": "surf",
-    "Message": "Surf is now enabled",
+    "Message": [
+      "Surf is now:",
+      "{GREEN}Enabled"
+    ],
     "PrintTo": 0,
-    "Description": "Command for enabling Surf gamemode",
+    "Description": "Command for Surf gamemode",
     "ServerCommands": [
       "sv_cheats 1",
       "sv_falldamage_scale 0",
       "sv_party_mode 1",
-      "mp_freezetime 2.5",
-      "mp_round_restart_delay 2.5",
+      "mp_freezetime 1",
+      "mp_round_restart_delay 2",
       "cl_ragdoll_gravity 0",
       "sv_accelerate 10",
       "sv_airaccelerate 1400",
-      "sv_gravity 800.0"
+      "sv_gravity 800.0",
+      "say hello"
     ],
     "Permission": {
-      "RequiresPermissionOr": false,
+      "ReguiresAllPermissions": false,
       "PermissionList": [
         "@css/cvar",
         "@custom/permission",
