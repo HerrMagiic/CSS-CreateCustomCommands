@@ -12,7 +12,7 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "1.0.6";
+    public override string ModuleVersion => "1.0.7";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
@@ -46,9 +46,13 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
 
         RegisterListeners();
 
-        if (comms != null)
+        
+        if (comms != null) 
+        {
+            comms = CheckForDuplicateCommands(comms);
             foreach (var com in comms)
                 AddCommands(com);
+        }
 
         if (hotReload)
             InitializeLists();
