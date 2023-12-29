@@ -20,7 +20,10 @@
   {
     "Title": "Enable Surf",
     "Command": "surf",
-    "Message": "Surf is now enabled",
+    "Message": [
+      "Surf is now:",
+      "{GREEN}Enabled"
+    ],
     "PrintTo": 0,
     "Description": "Command for Surf gamemode",
     "ServerCommands": [

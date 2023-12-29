@@ -37,11 +37,10 @@ public partial class CustomCommands
         PrintToAllCenter(cmd);
     }
     
-    private void PrintToChat(Receiver printToChat, CCSPlayerController player, string message)
+    private void PrintToChat(Receiver printToChat, CCSPlayerController player, dynamic message)
     {
-        string replaceTags = ReplaceMessageTags(message, player);
-        string replaceColorTags = ReplaceColorTags(replaceTags);
-        string[] msg = WrappedLine(replaceColorTags);
+        string[] msg = WrappedLine(message);
+        msg = ReplaceTags(msg, player);
 
         switch (printToChat)
         {

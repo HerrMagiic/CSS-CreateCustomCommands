@@ -1,14 +1,13 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
-using Serilog;
-
 namespace CustomCommands;
 public partial class CustomCommands
 {
@@ -105,14 +104,14 @@ public partial class CustomCommands
                 if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) 
                     return true;
             }
-            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+            player.PrintToChat($"{PrefixCache}You don't have the required permissions to execute this command");
             return false;
         }
         else
         {
             if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
             {
-                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+                player.PrintToChat($"{PrefixCache}You don't have the required permissions to execute this command");
                 return false;
             }
             return true;
@@ -160,9 +159,51 @@ public partial class CustomCommands
                 break;
         }
     }
-    private string[] WrappedLine(string input)
+    private string[] WrappedLine(dynamic input)
     {
-        return input.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        List<string> output = new List<string>();
+
+        if (input is JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    string result = jsonElement.GetString()!;
+                    return result?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+
+                case JsonValueKind.Array:
+                    foreach (var arrayElement in jsonElement.EnumerateArray())
+                    {
+                        string[] lines = arrayElement.GetString()?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                        output.AddRange(lines);
+                    }
+                    break;
+
+                default:
+                    Logger.LogError($"{Config.LogPrefix} Message is not a string or array");
+                    return Array.Empty<string>();
+            }
+        }
+        else
+        {
+            Logger.LogError($"{Config.LogPrefix} Invalid input type");
+            return Array.Empty<string>();
+        }
+
+        return output.ToArray();
+    }
+
+    private string[] ReplaceTags(string[] input, CCSPlayerController player)
+    {
+        string[] output = new string[input.Length];
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            output[i] = ReplaceMessageTags(input[i], player);
+            output[i] = ReplaceColorTags(output[i]);
+        }
+
+        return output;
     }
 
     private string ReplaceMessageTags(string input, CCSPlayerController player)
