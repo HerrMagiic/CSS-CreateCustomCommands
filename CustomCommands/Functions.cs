@@ -6,6 +6,8 @@ using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CustomCommands;
 public partial class CustomCommands
@@ -31,7 +33,49 @@ public partial class CustomCommands
 
         });
     }
+    private List<Commands> CheckForDuplicateCommands(List<Commands> comms)
+    {
+        List<Commands> duplicateCommands = new();
+        List<Commands> commands = new();
+        List<string> commandNames = new();
 
+        foreach (var com in comms)
+        {
+            string[] aliases = com.Command.Split(',');
+
+            foreach (var alias in aliases)
+            {
+                if (commandNames.Contains(alias))
+                {
+                    duplicateCommands.Add(com);
+                    continue;
+                }
+                commandNames.Add(alias);
+            }
+        }
+        
+        if (duplicateCommands.Count == 0)
+            return comms;
+
+        Logger.LogError($"------------------------------------------------------------------------");
+        Logger.LogError($"{Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
+        for (int i = 0; i < comms.Count; i++)
+        {
+            if(duplicateCommands.Contains(comms[i]))
+            {
+                Logger.LogError($"{Config.LogPrefix} Duplicate command found index {i+1}: ");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Title} ");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Description}");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Command}");
+                continue;
+            }
+            
+            commands.Add(comms[i]);
+        }
+        Logger.LogError($"------------------------------------------------------------------------");
+
+        return commands;
+    }
     private void AddCommands(Commands com)
     {
         string[] aliases = com.Command.Split(',');
@@ -123,7 +167,7 @@ public partial class CustomCommands
 
     private string ReplaceMessageTags(string input, CCSPlayerController player)
     {
-        SteamID steamId = new SteamID((ulong?)player.UserId!.Value ?? 0);
+        SteamID steamId = new SteamID(player.SteamID);
 
         Dictionary<string, string> replacements = new()
         {
