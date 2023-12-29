@@ -11,9 +11,9 @@
     "Description": "Command for SteamGroup",
     "Command": "steam,steamgroup,group",
     "Message": "SteamGroup: <link>",
-    "CenterElement": {
-      "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
-      "CenterMessageTime": 10
+    "CenterMessage": {
+      "Message": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+      "Time": 10
     },
     "PrintTo": 7
   },
