@@ -1,12 +1,13 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
-
+using Microsoft.Extensions.Logging;
 namespace CustomCommands;
 public partial class CustomCommands
 {
@@ -31,7 +32,49 @@ public partial class CustomCommands
 
         });
     }
+    private List<Commands> CheckForDuplicateCommands(List<Commands> comms)
+    {
+        List<Commands> duplicateCommands = new();
+        List<Commands> commands = new();
+        List<string> commandNames = new();
 
+        foreach (var com in comms)
+        {
+            string[] aliases = com.Command.Split(',');
+
+            foreach (var alias in aliases)
+            {
+                if (commandNames.Contains(alias))
+                {
+                    duplicateCommands.Add(com);
+                    continue;
+                }
+                commandNames.Add(alias);
+            }
+        }
+        
+        if (duplicateCommands.Count == 0)
+            return comms;
+
+        Logger.LogError($"------------------------------------------------------------------------");
+        Logger.LogError($"{Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
+        for (int i = 0; i < comms.Count; i++)
+        {
+            if(duplicateCommands.Contains(comms[i]))
+            {
+                Logger.LogError($"{Config.LogPrefix} Duplicate command found index {i+1}: ");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Title} ");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Description}");
+                Logger.LogError($"{Config.LogPrefix} - {comms[i].Command}");
+                continue;
+            }
+            
+            commands.Add(comms[i]);
+        }
+        Logger.LogError($"------------------------------------------------------------------------");
+
+        return commands;
+    }
     private void AddCommands(Commands com)
     {
         string[] aliases = com.Command.Split(',');
@@ -61,14 +104,14 @@ public partial class CustomCommands
                 if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) 
                     return true;
             }
-            PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+            player.PrintToChat($"{PrefixCache}You don't have the required permissions to execute this command");
             return false;
         }
         else
         {
             if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
             {
-                PrintToChat(Receiver.Client, player, "You don't have the required permissions to execute this command");
+                player.PrintToChat($"{PrefixCache}You don't have the required permissions to execute this command");
                 return false;
             }
             return true;
@@ -116,14 +159,56 @@ public partial class CustomCommands
                 break;
         }
     }
-    private string[] WrappedLine(string input)
+    private string[] WrappedLine(dynamic input)
     {
-        return input.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+        List<string> output = new List<string>();
+
+        if (input is JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    string result = jsonElement.GetString()!;
+                    return result?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+
+                case JsonValueKind.Array:
+                    foreach (var arrayElement in jsonElement.EnumerateArray())
+                    {
+                        string[] lines = arrayElement.GetString()?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                        output.AddRange(lines);
+                    }
+                    break;
+
+                default:
+                    Logger.LogError($"{Config.LogPrefix} Message is not a string or array");
+                    return Array.Empty<string>();
+            }
+        }
+        else
+        {
+            Logger.LogError($"{Config.LogPrefix} Invalid input type");
+            return Array.Empty<string>();
+        }
+
+        return output.ToArray();
+    }
+
+    private string[] ReplaceTags(string[] input, CCSPlayerController player)
+    {
+        string[] output = new string[input.Length];
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            output[i] = ReplaceMessageTags(input[i], player);
+            output[i] = ReplaceColorTags(output[i]);
+        }
+
+        return output;
     }
 
     private string ReplaceMessageTags(string input, CCSPlayerController player)
     {
-        SteamID steamId = new SteamID((ulong?)player.UserId!.Value ?? 0);
+        SteamID steamId = new SteamID(player.SteamID);
 
         Dictionary<string, string> replacements = new()
         {

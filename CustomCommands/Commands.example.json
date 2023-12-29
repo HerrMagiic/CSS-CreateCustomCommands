@@ -11,16 +11,19 @@
     "Description": "Command for SteamGroup",
     "Command": "steam,steamgroup,group",
     "Message": "SteamGroup: <link>",
-    "CenterElement": {
-      "CenterMessage": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
-      "CenterMessageTime": 10
+    "CenterMessage": {
+      "Message": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+      "Time": 10
     },
     "PrintTo": 7
   },
   {
     "Title": "Enable Surf",
     "Command": "surf",
-    "Message": "Surf is now enabled",
+    "Message": [
+      "Surf is now:",
+      "{GREEN}Enabled"
+    ],
     "PrintTo": 0,
     "Description": "Command for Surf gamemode",
     "ServerCommands": [
