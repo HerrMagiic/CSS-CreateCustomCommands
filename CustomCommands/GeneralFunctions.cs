@@ -18,19 +18,19 @@ public partial class CustomCommands
         {
             // Client Print To Center
             foreach (var player in centerClientOn)
-            {
                 Utilities.GetPlayerFromUserid(player.ClientId).PrintToCenterHtml(player.Message, 1);
-            }
+
+            // Server Print To Center
             if (centerServerOn.IsRunning)
             {
                 Utilities.GetPlayers().ForEach(controller =>
                 {
                     if (controller == null || !controller.IsValid) return;
 
-                    controller.PrintToCenterHtml(centerServerOn.Message, 1);
+                    string message = ReplaceMessageTags(centerServerOn.Message, controller);
+                    controller.PrintToCenterHtml(message, 1);
                 });
             }
-
         });
     }
 

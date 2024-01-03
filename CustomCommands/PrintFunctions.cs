@@ -7,18 +7,22 @@ public partial class CustomCommands
 {
     private void PrintToCenterClient(CCSPlayerController player, Commands cmd)
     {
+        string message = ReplaceMessageTags(cmd.CenterMessage.Message, player);
+
         var CenterClientElement = new CenterClientElement
         {
             ClientId = player.UserId!.Value,
-            Message = cmd.CenterMessage.Message
+            Message = message
         };
         centerClientOn.Add(CenterClientElement);
         AddTimer(cmd.CenterMessage.Time, () => centerClientOn.Remove(CenterClientElement));
     }
+
     private void PrintToAllCenter(Commands cmd)
     {
         centerServerOn.Message = cmd.CenterMessage.Message;
         centerServerOn.IsRunning = true;
+        
         AddTimer(cmd.CenterMessage.Time, () =>
         {
             centerServerOn.IsRunning = false;
