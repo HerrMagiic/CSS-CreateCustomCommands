@@ -50,6 +50,7 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
         if (comms != null) 
         {
             comms = CheckForDuplicateCommands(comms);
+            // Add commands from the JSON file to the server
             foreach (var com in comms)
                 AddCommands(com);
         }
@@ -58,6 +59,10 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
             InitializeLists();
     }
 
+    /// <summary>
+    /// Load the commands from the JSON file
+    /// </summary>
+    /// <returns>Returns the Commands as a List</returns>
     private List<Commands>? LoadCommandsFromJson()
     {
         string jsonPath = Path.Combine(ModuleDirectory, "Commands.json");
