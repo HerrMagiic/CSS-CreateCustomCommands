@@ -8,6 +8,7 @@ using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
+
 namespace CustomCommands;
 public partial class CustomCommands
 {
@@ -32,6 +33,7 @@ public partial class CustomCommands
 
         });
     }
+
     private List<Commands> CheckForDuplicateCommands(List<Commands> comms)
     {
         List<Commands> duplicateCommands = new();
@@ -85,7 +87,7 @@ public partial class CustomCommands
             {
                 if (player == null) return;
                 
-                if (com.Permission.PermissionList.Count >= 1)
+                if (com.Permission.PermissionList.Count > 0 && com.Permission != null)
                     if (!RequiresPermissions(player, com.Permission)) 
                         return;
                 
@@ -212,21 +214,21 @@ public partial class CustomCommands
 
         Dictionary<string, string> replacements = new()
         {
-            {"{PREFIX}", PrefixCache},
-            {"{MAP}", NativeAPI.GetMapName()},
-            {"{TIME}", DateTime.Now.ToString("HH:mm:ss")},
-            {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy")},
-            {"{PLAYERNAME}", player.PlayerName},
-            {"{STEAMID2}", steamId.SteamId2},
-            {"{STEAMID3}", steamId.SteamId3},
-            {"{STEAMID32}", steamId.SteamId32.ToString()},
-            {"{STEAMID64}", steamId.SteamId64.ToString()},
-            {"{SERVERNAME}", ConVar.Find("hostname")!.StringValue},
-            {"{IP}", ConVar.Find("ip")!.StringValue},
-            {"{PORT}", ConVar.Find("hostport")!.GetPrimitiveValue<int>().ToString()},
-            {"{MAXPLAYERS}", Server.MaxPlayers.ToString()},
+            {"{PREFIX}", PrefixCache ?? "<PREFIX not found>"},
+            {"{MAP}", NativeAPI.GetMapName() ?? "<MAP not found>"},
+            {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
+            {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
+            {"{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>"},
+            {"{STEAMID2}", steamId.SteamId2 ?? "<STEAMID2 not found>"},
+            {"{STEAMID3}", steamId.SteamId3 ?? "<STEAMID3 not found>"},
+            {"{STEAMID32}", steamId.SteamId32.ToString() ?? "<STEAMID32 not found>"},
+            {"{STEAMID64}", steamId.SteamId64.ToString() ?? "<STEAMID64 not found>"},
+            {"{SERVERNAME}", ConVar.Find("hostname")!.StringValue ?? "<SERVERNAME not found>"},
+            {"{IP}", ConVar.Find("ip")!.StringValue ?? "<IP not found>"},
+            {"{PORT}", ConVar.Find("hostport")!.GetPrimitiveValue<int>().ToString() ?? "<PORT not found>"},
+            {"{MAXPLAYERS}", Server.MaxPlayers.ToString() ?? "<MAXPLAYERS not found>"},
             {"{PLAYERS}",
-                Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString()}
+                Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"}
         };
 
         foreach (var pair in replacements)
