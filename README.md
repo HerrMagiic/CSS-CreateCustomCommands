@@ -111,6 +111,4 @@ Defines if the command requires specific permissions to execute:
 
 ### Colorlist
 
-{DEFAULT}, {RED}, {LIGHTPURPLE}, {GREEN}, {LIME},
-{LIGHTGREEN}, {LIGHTRED}, {GRAY}, {LIGHTOLIVE},
-{OLIVE}, {LIGHTBLUE}, {BLUE}, {PURPLE}, {GRAYBLUE}
+![CS2Colors](.github\img\ColorsCS2.png)
