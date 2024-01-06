@@ -1,7 +1,7 @@
+using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using CustomCommands.Services;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 public class PluginGlobals : IPluginGlobals
 {
     public List<CenterClientElement> centerClientOn { get; set; } = new();

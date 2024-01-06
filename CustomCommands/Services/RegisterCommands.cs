@@ -1,10 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Plugin;
+using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using CustomCommands.Services;
 using Microsoft.Extensions.Logging;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 public class RegisterCommands : IRegisterCommands
 {
     private readonly ILogger<CustomCommands> Logger;

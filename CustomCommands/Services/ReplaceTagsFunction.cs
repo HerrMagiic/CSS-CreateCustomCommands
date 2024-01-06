@@ -4,10 +4,10 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
-using CustomCommands.Services;
+using CustomCommands.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 public class ReplaceTagsFunctions : IReplaceTagsFunctions
 {
     private readonly IPluginGlobals PluginGlobals;

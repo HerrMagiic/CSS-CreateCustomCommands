@@ -1,13 +1,14 @@
 using System.Text.Json;
+using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using CustomCommands.Services;
 using Microsoft.Extensions.Logging;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 
 public class LoadJson : ILoadJson
 {
     private readonly ILogger<CustomCommands> Logger;
+    
     public LoadJson(ILogger<CustomCommands> Logger)
     {
         this.Logger = Logger;

@@ -3,9 +3,10 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Plugin;
-using CustomCommands.Services;
+using CustomCommands.Interfaces;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
+
 public class EventManager : IEventManager
 {
     private readonly IPluginGlobals PluginGlobals;
@@ -44,7 +45,6 @@ public class EventManager : IEventManager
                 }
             }
             
-
             // Server Print To Center
             if (PluginGlobals.centerServerOn.IsRunning)
             {

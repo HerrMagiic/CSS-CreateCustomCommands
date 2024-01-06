@@ -1,10 +1,10 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Plugin;
+using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using CustomCommands.Services;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 public class MessageManager : IMessageManager
 {
     private readonly IPluginGlobals PluginGlobals;

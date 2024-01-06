@@ -1,9 +1,9 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
+using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using CustomCommands.Services;
 
-namespace CustomCommands.Controller;
+namespace CustomCommands.Services;
 
 public class PermissionsManager : IPermissionsManager
 {

@@ -1,7 +1,7 @@
 
 using CounterStrikeSharp.API.Core;
-using CustomCommands.Controller;
 using CustomCommands.Services;
+using CustomCommands.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomCommands;

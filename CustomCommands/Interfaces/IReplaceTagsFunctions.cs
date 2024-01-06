@@ -1,6 +1,6 @@
 using CounterStrikeSharp.API.Core;
 
-namespace CustomCommands.Services;
+namespace CustomCommands.Interfaces;
 
 public interface IReplaceTagsFunctions
 {

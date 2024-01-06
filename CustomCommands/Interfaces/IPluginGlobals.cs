@@ -1,7 +1,7 @@
 using CounterStrikeSharp.API.Core;
 using CustomCommands.Model;
 
-namespace CustomCommands.Services;
+namespace CustomCommands.Interfaces;
 public interface IPluginGlobals
 {
     List<CenterClientElement> centerClientOn { get; set; }
