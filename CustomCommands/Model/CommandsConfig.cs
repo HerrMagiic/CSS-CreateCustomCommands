@@ -1,5 +1,5 @@
-﻿
-namespace CustomCommands.Model;
+﻿namespace CustomCommands.Model;
+
 public class Commands
 {
     public required string Title { get; set; } = "";

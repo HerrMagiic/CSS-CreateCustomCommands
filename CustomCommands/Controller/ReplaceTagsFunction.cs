@@ -1,13 +1,25 @@
+using System.Text.Json;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
+using CustomCommands.Services;
+using Microsoft.Extensions.Logging;
 
-namespace CustomCommands;
-public partial class CustomCommands
+namespace CustomCommands.Controller;
+public class ReplaceTagsFunctions : IReplaceTagsFunctions
 {
-    private string[] ReplaceTags(string[] input, CCSPlayerController player)
+    private readonly IPluginGlobals PluginGlobals;
+    private readonly ILogger<CustomCommands> Logger;
+    
+    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, ILogger<CustomCommands> Logger)
+    {
+        this.PluginGlobals = PluginGlobals;
+        this.Logger = Logger;
+    }
+
+    public string[] ReplaceTags(string[] input, CCSPlayerController player)
     {
         string[] output = new string[input.Length];
 
@@ -20,13 +32,13 @@ public partial class CustomCommands
         return output;
     }
 
-    private string ReplaceMessageTags(string input, CCSPlayerController player)
+    public string ReplaceMessageTags(string input, CCSPlayerController player)
     {
         SteamID steamId = new SteamID(player.SteamID);
 
         Dictionary<string, string> replacements = new()
         {
-            {"{PREFIX}", Config.Prefix ?? "<PREFIX not found>"},
+            {"{PREFIX}", PluginGlobals.Config.Prefix ?? "<PREFIX not found>"},
             {"{MAP}", NativeAPI.GetMapName() ?? "<MAP not found>"},
             {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
             {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
@@ -49,7 +61,7 @@ public partial class CustomCommands
         return input;
     }
 
-    private string ReplaceColorTags(string input)
+    public string ReplaceColorTags(string input)
     {
         Dictionary<string, string> replacements = new()
         {
@@ -77,5 +89,39 @@ public partial class CustomCommands
             input = input.Replace(pair.Key, pair.Value);
 
         return input;
+    }
+
+    public string[] WrappedLine(dynamic input)
+    {
+        List<string> output = new List<string>();
+
+        if (input is JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.String:
+                    string result = jsonElement.GetString()!;
+                    return result?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+
+                case JsonValueKind.Array:
+                    foreach (var arrayElement in jsonElement.EnumerateArray())
+                    {
+                        string[] lines = arrayElement.GetString()?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                        output.AddRange(lines);
+                    }
+                    break;
+
+                default:
+                    Logger.LogError($"{PluginGlobals.Config.LogPrefix} Message is not a string or array");
+                    return Array.Empty<string>();
+            }
+        }
+        else
+        {
+            Logger.LogError($"{PluginGlobals.Config.LogPrefix} Invalid input type");
+            return Array.Empty<string>();
+        }
+
+        return output.ToArray();
     }
 }

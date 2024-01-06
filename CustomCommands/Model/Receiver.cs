@@ -1,5 +1,5 @@
-
 namespace CustomCommands.Model;
+
 public enum Receiver
 {
     Client = 0,
