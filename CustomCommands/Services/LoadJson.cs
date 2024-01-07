@@ -26,6 +26,11 @@ public class LoadJson : ILoadJson
             var json = File.ReadAllText(jsonPath);
             return JsonSerializer.Deserialize<List<Commands>>(json);
         }
+        else if (File.Exists(Path.Combine(path, "Commands.example.json")))
+        {
+            Logger.LogWarning("No Config file found. Please rename Commands.example.json to Commands.json");
+            return null;
+        }
         else
         {
             Logger.LogWarning("No Config file found. Please create one");

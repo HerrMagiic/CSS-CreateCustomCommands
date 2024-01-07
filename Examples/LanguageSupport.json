@@ -1,0 +1,9 @@
+[
+    {
+        "Title": "Sentance",
+        "Description": "Send a sentance",
+        "Command": "sentance",
+        "Message": "{LANG=test} test",
+        "PrintTo": 0
+    }
+]

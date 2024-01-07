@@ -1,21 +1,26 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Interfaces;
+using CounterStrikeSharp.API.Core.Translations;
 using Microsoft.Extensions.Logging;
+using CounterStrikeSharp.API.Core.Plugin;
 
 namespace CustomCommands.Services;
 public class ReplaceTagsFunctions : IReplaceTagsFunctions
 {
     private readonly IPluginGlobals PluginGlobals;
+    private readonly PluginContext PluginContext;
     private readonly ILogger<CustomCommands> Logger;
     
-    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, ILogger<CustomCommands> Logger)
+    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, ILogger<CustomCommands> Logger)
     {
         this.PluginGlobals = PluginGlobals;
+        this.PluginContext = (PluginContext as PluginContext)!;
         this.Logger = Logger;
     }
 
@@ -25,13 +30,38 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
 
         for (int i = 0; i < input.Length; i++)
         {
-            output[i] = ReplaceMessageTags(input[i], player);
+            output[i] = ReplaceLanguageTags(input[i]);
+            output[i] = ReplaceMessageTags(output[i], player);
             output[i] = ReplaceColorTags(output[i]);
         }
 
         return output;
     }
 
+    public string ReplaceLanguageTags(string input)
+    {
+        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+
+        // Define the regex pattern to find "{LANG=...}"
+        string pattern = @"\{LANG=(.*?)\}";
+
+        // Use Regex to find matches
+        Match match = Regex.Match(input, pattern);
+
+        // Check if a match is found
+        if (match.Success)
+        {
+            // Return the group captured in the regex, which is the string after "="
+            string lang = match.Groups[1].Value;
+
+            return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
+        }
+        else
+        {
+            // Return the original string if no match is found
+            return input;
+        }
+    }
     public string ReplaceMessageTags(string input, CCSPlayerController player)
     {
         SteamID steamId = new SteamID(player.SteamID);

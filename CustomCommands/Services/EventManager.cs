@@ -32,6 +32,7 @@ public class EventManager : IEventManager
     public void RegisterListeners()
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+
         plugin.RegisterListener<Listeners.OnTick>(() =>
         {
             // Client Print To Center
@@ -53,8 +54,9 @@ public class EventManager : IEventManager
                 Utilities.GetPlayers().ForEach(controller =>
                 {
                     if (controller == null || !controller.IsValid) return;
-
-                    string message = ReplaceTagsFunctions.ReplaceMessageTags(PluginGlobals.centerServerOn.Message, controller);
+                    
+                    string message = ReplaceTagsFunctions.ReplaceLanguageTags(PluginGlobals.centerServerOn.Message);
+                    message = ReplaceTagsFunctions.ReplaceMessageTags(message, controller);
                     controller.PrintToCenterHtml(message, 1);
                 });
             }
