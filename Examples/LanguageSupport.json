@@ -4,6 +4,10 @@
         "Description": "Send a sentance",
         "Command": "sentance",
         "Message": "{LANG=test} test",
-        "PrintTo": 0
+        "PrintTo": 2,
+        "CenterMessage": {
+            "Message": "{LANG=test}",
+            "Time": 10
+        }
     }
 ]
