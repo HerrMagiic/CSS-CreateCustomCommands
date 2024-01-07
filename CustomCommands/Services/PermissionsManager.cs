@@ -16,7 +16,7 @@ public class PermissionsManager : IPermissionsManager
 
     public bool RequiresPermissions(CCSPlayerController player, Permission permissions)
     {
-        if (!permissions.ReguiresAllPermissions)
+        if (!permissions.RequiresAllPermissions)
         {
             foreach (var permission in permissions.PermissionList)
             {
