@@ -3,6 +3,7 @@
         "Title": "Sentance",
         "Description": "Send a sentance",
         "Command": "sentance",
+        // Note that you also need to add the test tag in the language files in CustomCommands/lang
         "Message": "{LANG=test} test",
         "PrintTo": 2,
         "CenterMessage": {
