@@ -50,7 +50,7 @@ For more examples look here: [Examples](https://github.com/HerrMagiic/CSS-Create
       "say hello"
     ],
     "Permission": {
-      "ReguiresAllPermissions": false,
+      "RequiresAllPermissions": false,
       "PermissionList": [
         "@css/cvar",
         "@custom/permission",
@@ -104,7 +104,7 @@ An array of server commands to be executed when the command is triggered. Useful
 
 Defines if the command requires specific permissions to execute:
 
-- **ReguiresAllPermissions**
+- **RequiresAllPermissions**
   - Set to true 	= The player needs all permissions in PermissionsList
   - Set to false 	= The player only needs one of the permissions in PermissionsList
 - **PermissionList**: A list of permission flags or groups required to execute the command. [More Explenation](https://docs.cssharp.dev/docs/admin-framework/defining-admins.html)
