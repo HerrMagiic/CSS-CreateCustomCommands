@@ -1,0 +1,22 @@
+[
+    {
+      "Title": "Fast restart",
+      "Command": "rg",
+      "Message": [
+        "Restarting game..."
+      ],
+      "PrintTo": 0,
+      "Description": "restarting game",
+      "ServerCommands": [
+        "mp_restartgame 1"
+      ],
+      "Permission": {
+        "RequiresAllPermissions": false,
+        "PermissionList": [
+          "@css/cvar",
+          "@custom/permission",
+          "#css/simple-admin"
+        ]
+      }
+    }
+  ]

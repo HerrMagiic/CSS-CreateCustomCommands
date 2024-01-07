@@ -3,19 +3,20 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
+using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Services;
 public class MessageManager : IMessageManager
 {
     private readonly IPluginGlobals PluginGlobals;
     private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
-    private readonly CustomCommands PluginContext;
+    private readonly PluginContext PluginContext;
 
     public MessageManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions, IPluginContext PluginContext)
     {
         this.PluginGlobals = PluginGlobals;
         this.ReplaceTagsFunctions = ReplaceTagsFunctions;
-        this.PluginContext = ((PluginContext as PluginContext)!.Plugin as CustomCommands)!;
+        this.PluginContext = (PluginContext as PluginContext)!;
     }
 
     public void SendMessage(CCSPlayerController player, Commands cmd) 
@@ -53,6 +54,8 @@ public class MessageManager : IMessageManager
 
     public void PrintToCenterClient(CCSPlayerController player, Commands cmd)
     {
+        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+        
         string message = ReplaceTagsFunctions.ReplaceMessageTags(cmd.CenterMessage.Message, player);
 
         var CenterClientElement = new CenterClientElement
@@ -61,15 +64,17 @@ public class MessageManager : IMessageManager
             Message = message
         };
         PluginGlobals.centerClientOn.Add(CenterClientElement);
-        PluginContext.AddTimer(cmd.CenterMessage.Time, () => PluginGlobals.centerClientOn.Remove(CenterClientElement));
+        plugin.AddTimer(cmd.CenterMessage.Time, () => PluginGlobals.centerClientOn.Remove(CenterClientElement));
     }
 
     public void PrintToAllCenter(Commands cmd)
     {
+        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+
         PluginGlobals.centerServerOn.Message = cmd.CenterMessage.Message;
         PluginGlobals.centerServerOn.IsRunning = true;
         
-        PluginContext.AddTimer(cmd.CenterMessage.Time, () =>
+        plugin.AddTimer(cmd.CenterMessage.Time, () =>
         {
             PluginGlobals.centerServerOn.IsRunning = false;
         });

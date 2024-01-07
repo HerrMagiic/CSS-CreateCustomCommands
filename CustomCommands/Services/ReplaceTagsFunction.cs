@@ -91,6 +91,11 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         return input;
     }
 
+    /// <summary>
+    /// Splits the input into an array of strings. If the input is a string, it will be split by newlines. If the input is an array, each element will be split by newlines.
+    /// </summary>
+    /// <param name="input">This should be a string[] or a string</param>
+    /// <returns>An array of strings representing the lines of the input.</returns>
     public string[] WrappedLine(dynamic input)
     {
         List<string> output = new List<string>();

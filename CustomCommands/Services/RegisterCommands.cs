@@ -11,7 +11,7 @@ public class RegisterCommands : IRegisterCommands
     private readonly IMessageManager MessageManager;
     private readonly IPluginGlobals PluginGlobals;
     private readonly IPermissionsManager PermissionsManager;
-    private readonly CustomCommands PluginContext;
+    private readonly PluginContext PluginContext;
 
     public RegisterCommands(ILogger<CustomCommands> Logger, IMessageManager MessageManager, 
                                 IPluginGlobals PluginGlobals, IPermissionsManager PermissionsManager, IPluginContext PluginContext)
@@ -20,16 +20,18 @@ public class RegisterCommands : IRegisterCommands
         this.MessageManager = MessageManager;
         this.PluginGlobals = PluginGlobals;
         this.PermissionsManager = PermissionsManager;
-        this.PluginContext = ((PluginContext as PluginContext)!.Plugin as CustomCommands)!;
+        this.PluginContext = (PluginContext as PluginContext)!;
     }
 
     public void AddCommands(Commands com)
     {
+        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+        
         string[] aliases = com.Command.Split(',');
 
         for (int i = 0; i < aliases.Length; i++)
         {
-            PluginContext.AddCommand(aliases[i], com.Description, (player, info) =>
+            plugin.AddCommand(aliases[i], com.Description, (player, info) =>
             {
                 if (player == null) return;
                 

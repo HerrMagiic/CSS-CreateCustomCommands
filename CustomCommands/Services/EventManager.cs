@@ -4,19 +4,20 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Services;
 
 public class EventManager : IEventManager
 {
     private readonly IPluginGlobals PluginGlobals;
-    private readonly CustomCommands PluginContext;
+    private readonly PluginContext PluginContext;
     private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
     
     public EventManager(IPluginGlobals PluginGlobals, IPluginContext PluginContext, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
         this.PluginGlobals = PluginGlobals;
-        this.PluginContext = ((PluginContext as PluginContext)!.Plugin as CustomCommands)!;
+        this.PluginContext = (PluginContext as PluginContext)!;
         this.ReplaceTagsFunctions = ReplaceTagsFunctions;
     }
 
@@ -30,7 +31,8 @@ public class EventManager : IEventManager
 
     public void RegisterListeners()
     {
-        PluginContext.RegisterListener<Listeners.OnTick>(() =>
+        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+        plugin.RegisterListener<Listeners.OnTick>(() =>
         {
             // Client Print To Center
             if(PluginGlobals.centerClientOn != null && PluginGlobals.centerClientOn.Count !> 0 )

@@ -1,6 +1,5 @@
 
 using CounterStrikeSharp.API.Core;
-using CustomCommands.Services;
 using CustomCommands.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,12 +9,11 @@ public class CustomCommandsServiceCollection : IPluginServiceCollection<CustomCo
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<IMessageManager, MessageManager>();
-        services.AddSingleton<IReplaceTagsFunctions, ReplaceTagsFunctions>();
-        services.AddSingleton<IRegisterCommands, RegisterCommands>();
-        services.AddSingleton<IPluginGlobals, PluginGlobals>();
-        services.AddSingleton<ILoadJson, LoadJson>();
-        services.AddSingleton<IPermissionsManager, PermissionsManager>();
-        services.AddSingleton<IEventManager, EventManager>();
+        services.Scan(scan => scan
+            .FromAssemblyOf<IPermissionsManager>()
+            .AddClasses()
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime()
+        );
     }
 }

@@ -1,11 +1,11 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
-using CustomCommands.Services;
+using CustomCommands.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace CustomCommands;
 
-[MinimumApiVersion(98)]
+[MinimumApiVersion(142)]
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
