@@ -1,0 +1,20 @@
+[
+    {
+      "Title": "Discord",
+      "Description": "Command for Discord",
+      "Command": "discord",
+      "Message": "{PREFIX}{GREEN}Discord: \n <link>",
+      "PrintTo": 0
+    },
+    {
+      "Title": "Steam",
+      "Description": "Command for SteamGroup",
+      "Command": "steam,steamgroup,group",
+      "Message": "SteamGroup: <link>",
+      "CenterMessage": {
+        "Message": "<div>Steam Group</div><br><div><font color='#00ff00'>https...</font></div>",
+        "Time": 10
+      },
+      "PrintTo": 7
+    }
+  ]

@@ -39,7 +39,7 @@
       "say hello"
     ],
     "Permission": {
-      "ReguiresAllPermissions": false,
+      "RequiresAllPermissions": false,
       "PermissionList": [
         "@css/cvar",
         "@custom/permission",

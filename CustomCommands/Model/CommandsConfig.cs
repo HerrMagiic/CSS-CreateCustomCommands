@@ -1,5 +1,5 @@
-﻿
-namespace CustomCommands.Model;
+﻿namespace CustomCommands.Model;
+
 public class Commands
 {
     public required string Title { get; set; } = "";
@@ -13,7 +13,7 @@ public class Commands
 }
 public class Permission
 {
-    public bool ReguiresAllPermissions { get; set; } = false;
+    public bool RequiresAllPermissions { get; set; } = false;
     public List<string> PermissionList { get; set; } = new();
 }
 public class CenterElement

@@ -1,5 +1,5 @@
-
 namespace CustomCommands.Model;
+
 public class CenterClientElement
 {
     public int ClientId { get; set; } = -1;
