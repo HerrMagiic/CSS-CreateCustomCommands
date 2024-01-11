@@ -9,7 +9,7 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "1.0.8";
+    public override string ModuleVersion => "1.0.9";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
@@ -47,8 +47,14 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
 
         PluginGlobals.Config = Config;
 
-        var comms = LoadJson.LoadCommandsFromJson(ModuleDirectory);
+        var comms = LoadJson.GettingCommandsFromJsonsFiles(ModuleDirectory);
 
+        if (comms == null)
+        {
+            Logger.LogError("No commands found please create a config file");
+            return;
+        }
+        
         EventManager.RegisterListeners();
 
         if (comms != null) 

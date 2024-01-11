@@ -2,6 +2,7 @@ using System.Text.Json;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CustomCommands.Services;
 
@@ -14,29 +15,47 @@ public class LoadJson : ILoadJson
         this.Logger = Logger;
     }
 
-    /// <summary>
-    /// Load the commands from the JSON file
-    /// </summary>
-    /// <returns>Returns the Commands as a List</returns>
-    public List<Commands>? LoadCommandsFromJson(string path)
+    public List<Commands> GettingCommandsFromJsonsFiles(string path)
     {
-        string jsonPath = Path.Combine(path, "Commands.json");
-        if (File.Exists(jsonPath))
+        var comms = new List<Commands>();
+
+        var pathofcommands = Path.Combine(path, "Commands");
+        var defaultconfigpath = Path.Combine(path, "Commands.json");
+        var files = Directory.GetFiles(pathofcommands, "*.json", SearchOption.AllDirectories);
+
+        // Check if the default config file exists in plugins/CustomCommands
+        if (File.Exists(defaultconfigpath))
         {
-            var json = File.ReadAllText(jsonPath);
-            return JsonSerializer.Deserialize<List<Commands>>(json);
+            files.Append(defaultconfigpath);
+            Logger.LogInformation("Found default config file");
         }
-        else if (File.Exists(Path.Combine(path, "Commands.example.json")))
+        //
+        else if (!File.Exists(defaultconfigpath) && files.Length == 0)
         {
-            Logger.LogWarning("No Config file found. Please rename Commands.example.json to Commands.json");
-            return null;
+            Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or  in plugins/CustomCommands/Commands/<name>.json");
+            return comms;
         }
-        else
+
+        foreach (var file in files)
         {
-            Logger.LogWarning("No Config file found. Please create one");
-            return null;
+            var json = File.ReadAllText(file);
+            var commands = JsonSerializer.Deserialize<List<Commands>>(json);
+            if (commands != null)
+                comms.AddRange(commands);
+            
+        }
+        return comms;
+    }
+    public bool ValidateObject(Commands comms, string path)
+    {
+        switch (comms)
+        {
+            case null:
+                Logger.LogError($"Config files is empty or not valid: {Path.GetFullPath(path)}");
+                return false;
+            case { }:
+            
+            default:
         }
     }
-
-    
 }

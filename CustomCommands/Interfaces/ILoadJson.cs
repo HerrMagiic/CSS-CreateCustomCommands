@@ -4,5 +4,5 @@ namespace CustomCommands.Interfaces;
 
 public interface ILoadJson
 {
-    List<Commands>? LoadCommandsFromJson(string path);
+    List<Commands> GettingCommandsFromJsonsFiles(string path);
 }
