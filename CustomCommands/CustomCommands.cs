@@ -43,7 +43,7 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
         }
         
         Logger.LogInformation(
-            $"CustomCommands has been loaded, and the hot reload flag was {hotReload}, path is {ModulePath}");
+            $"{ModuleName} loaded!");
 
         PluginGlobals.Config = Config;
 
