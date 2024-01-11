@@ -111,4 +111,4 @@ Defines if the command requires specific permissions to execute:
 
 ### Colorlist
 
-![CS2Colors](.github\img\ColorsCS2.png)
+![CS2Colors](.github/img/ColorsCS2.png)
