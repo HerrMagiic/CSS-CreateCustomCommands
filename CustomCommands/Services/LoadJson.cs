@@ -2,7 +2,6 @@ using System.Text.Json;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace CustomCommands.Services;
 
@@ -15,9 +14,11 @@ public class LoadJson : ILoadJson
         this.Logger = Logger;
     }
 
-    public List<Commands> GettingCommandsFromJsonsFiles(string path)
+    public List<Commands> GetCommandsFromJsonFiles(string path)
     {
         var comms = new List<Commands>();
+
+        CheckForExampleFile(path);
 
         var pathofcommands = Path.Combine(path, "Commands");
         var defaultconfigpath = Path.Combine(path, "Commands.json");
@@ -26,13 +27,13 @@ public class LoadJson : ILoadJson
         // Check if the default config file exists in plugins/CustomCommands
         if (File.Exists(defaultconfigpath))
         {
-            files.Append(defaultconfigpath);
-            Logger.LogInformation("Found default config file");
+            _ = files.Append(defaultconfigpath);
+            Logger.LogInformation("Found default config file.");
         }
         //
         else if (!File.Exists(defaultconfigpath) && files.Length == 0)
         {
-            Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or  in plugins/CustomCommands/Commands/<name>.json");
+            Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or in plugins/CustomCommands/Commands/<name>.json");
             return comms;
         }
 
@@ -46,45 +47,62 @@ public class LoadJson : ILoadJson
         }
         return comms;
     }
+    // Check if the Command.json file exists. If not replace it with the example file
+    public void CheckForExampleFile(string path)
+    {
+        var defaultconfigpath = Path.Combine(path, "Commands.json");
+        var exampleconfigpath = Path.Combine(path, "Commands.example.json");
+        if (!File.Exists(defaultconfigpath))
+        {
+            File.Copy(exampleconfigpath, defaultconfigpath);
+            Logger.LogInformation("Created default config file.");
+        }
+        
+    }
     public bool ValidateObject(List<Commands>? comms, string path)
     {
         if (comms == null)
         {
-            Logger.LogError($"Invalid object in {path}");
+            Logger.LogError($"Invalid JSON format in {path}. Please check the docs on how to create a valid JSON file");
             return false;
         }
-        foreach (var command in comms)
+        for (int i = comms.Count - 1; i >= 0 ; i--)
         {
             bool commandstatus = true;
-            if (command.Title == null || command.Title == "")
+            // Title
+            if (string.IsNullOrEmpty(comms[i].Title))
             {
                 Logger.LogWarning($"Title not set in {path}. Title is not required but recommended");
                 commandstatus = false;
             }
-            if (command.Description == null || command.Description == "")
+            // Description
+            if (string.IsNullOrEmpty(comms[i].Description))
             {
                 Logger.LogWarning($"Description not set in {path}. Description is not required but recommended. This will be shown in the help command");
                 commandstatus = false;
             }
-            if (command.Command == null || command.Command == "")
+            // Command
+            if (string.IsNullOrEmpty(comms[i].Command))
             {
                 Logger.LogError($"Command not set in {path}");
                 commandstatus = false;
             }
-            if (commad)
-            if (!PrintToCheck(command))
-                return false;
+            if (!PrintToCheck(comms[i]))
+                commandstatus = false;
 
             if (!commandstatus)
             {
-                SendCommandInfo(command);
+                Logger.LogError($"Command {comms[i].Command} will not be loaded. Index: {i}");
+                LogCommandDetails(comms[i]);
                 return false;
             }
 
             return true;
         }
+        return true;
     }
-    public void SendCommandInfo(Commands comms)
+
+    public void LogCommandDetails(Commands comms)
     {
             Logger.LogInformation($"Title: {comms.Title}");
             Logger.LogInformation($"Description: {comms.Description}");
@@ -97,54 +115,33 @@ public class LoadJson : ILoadJson
             Logger.LogInformation($"PermissionList: {string.Join(", ", comms.Permission.PermissionList)}");
             Logger.LogInformation($"RequiresAllPermissions: {comms.Permission.RequiresAllPermissions}");
     }
+
     public bool PrintToCheck(Commands comms)
     {
         if (comms.PrintTo == Sender.ClientChat || comms.PrintTo == Sender.AllChat)
         {
-            if (comms.Message == null || comms.Message == "")
+            if (string.IsNullOrEmpty(comms.Message))
             {
                 Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                Logger.LogError($"Title: {comms.Title}");
-                Logger.LogError($"Description: {comms.Description}");
-                Logger.LogError($"Command: {comms.Command}");
+                    LogCommandDetails(comms);
                 return false;
             }
         }
         else if (comms.PrintTo == Sender.ClientCenter || comms.PrintTo == Sender.AllCenter)
         {
-            if (comms.CenterMessage.Message == null || comms.CenterMessage.Message == "")
+            if (string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
                 Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                Logger.LogError($"Title: {comms.Title}");
-                Logger.LogError($"Description: {comms.Description}");
-                Logger.LogError($"Command: {comms.Command}");
+                LogCommandDetails(comms);
                 return false;
             }
         } 
         else
         {
-            if (comms.Message == null || comms.Message == "" && comms.CenterMessage.Message != null || comms.CenterMessage.Message != "")
-            {
-                Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                Logger.LogError($"Title: {comms.Title}");
-                Logger.LogError($"Description: {comms.Description}");
-                Logger.LogError($"Command: {comms.Command}");
-                return false;
-            }
-            else if (comms.CenterMessage.Message == null || comms.CenterMessage.Message == "" && comms.Message != null || comms.Message != "")
-            {
-                Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                Logger.LogError($"Title: {comms.Title}");
-                Logger.LogError($"Description: {comms.Description}");
-                Logger.LogError($"Command: {comms.Command}");
-                return false;
-            }
-            else
+            if (string.IsNullOrEmpty(comms.Message) && string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
                 Logger.LogError($"Message and CenterMessage are not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                Logger.LogError($"Title: {comms.Title}");
-                Logger.LogError($"Description: {comms.Description}");
-                Logger.LogError($"Command: {comms.Command}");
+                LogCommandDetails(comms);
                 return false;
             }
         }

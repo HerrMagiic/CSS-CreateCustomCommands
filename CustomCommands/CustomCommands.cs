@@ -47,7 +47,7 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
 
         PluginGlobals.Config = Config;
 
-        var comms = LoadJson.GettingCommandsFromJsonsFiles(ModuleDirectory);
+        var comms = LoadJson.GetCommandsFromJsonFiles(ModuleDirectory);
 
         if (comms == null)
         {
