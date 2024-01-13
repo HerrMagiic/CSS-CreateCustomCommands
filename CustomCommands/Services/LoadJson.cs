@@ -40,22 +40,114 @@ public class LoadJson : ILoadJson
         {
             var json = File.ReadAllText(file);
             var commands = JsonSerializer.Deserialize<List<Commands>>(json);
-            if (commands != null)
-                comms.AddRange(commands);
+            if (ValidateObject(commands, file))
+                comms.AddRange(commands!);
             
         }
         return comms;
     }
-    public bool ValidateObject(Commands comms, string path)
+    public bool ValidateObject(List<Commands>? comms, string path)
     {
-        switch (comms)
+        if (comms == null)
         {
-            case null:
-                Logger.LogError($"Config files is empty or not valid: {Path.GetFullPath(path)}");
-                return false;
-            case { }:
-            
-            default:
+            Logger.LogError($"Invalid object in {path}");
+            return false;
         }
+        foreach (var command in comms)
+        {
+            bool commandstatus = true;
+            if (command.Title == null || command.Title == "")
+            {
+                Logger.LogWarning($"Title not set in {path}. Title is not required but recommended");
+                commandstatus = false;
+            }
+            if (command.Description == null || command.Description == "")
+            {
+                Logger.LogWarning($"Description not set in {path}. Description is not required but recommended. This will be shown in the help command");
+                commandstatus = false;
+            }
+            if (command.Command == null || command.Command == "")
+            {
+                Logger.LogError($"Command not set in {path}");
+                commandstatus = false;
+            }
+            if (commad)
+            if (!PrintToCheck(command))
+                return false;
+
+            if (!commandstatus)
+            {
+                SendCommandInfo(command);
+                return false;
+            }
+
+            return true;
+        }
+    }
+    public void SendCommandInfo(Commands comms)
+    {
+            Logger.LogInformation($"Title: {comms.Title}");
+            Logger.LogInformation($"Description: {comms.Description}");
+            Logger.LogInformation($"Command: {comms.Command}");
+            Logger.LogInformation($"Message: {comms.Message}");
+            Logger.LogInformation($"CenterMessage: {comms.CenterMessage.Message}");
+            Logger.LogInformation($"CenterMessageTime: {comms.CenterMessage.Time}");
+            Logger.LogInformation($"PrintTo: {comms.PrintTo}");
+            Logger.LogInformation($"ServerCommands: {string.Join(", ", comms.ServerCommands)}");
+            Logger.LogInformation($"PermissionList: {string.Join(", ", comms.Permission.PermissionList)}");
+            Logger.LogInformation($"RequiresAllPermissions: {comms.Permission.RequiresAllPermissions}");
+    }
+    public bool PrintToCheck(Commands comms)
+    {
+        if (comms.PrintTo == Sender.ClientChat || comms.PrintTo == Sender.AllChat)
+        {
+            if (comms.Message == null || comms.Message == "")
+            {
+                Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                Logger.LogError($"Title: {comms.Title}");
+                Logger.LogError($"Description: {comms.Description}");
+                Logger.LogError($"Command: {comms.Command}");
+                return false;
+            }
+        }
+        else if (comms.PrintTo == Sender.ClientCenter || comms.PrintTo == Sender.AllCenter)
+        {
+            if (comms.CenterMessage.Message == null || comms.CenterMessage.Message == "")
+            {
+                Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                Logger.LogError($"Title: {comms.Title}");
+                Logger.LogError($"Description: {comms.Description}");
+                Logger.LogError($"Command: {comms.Command}");
+                return false;
+            }
+        } 
+        else
+        {
+            if (comms.Message == null || comms.Message == "" && comms.CenterMessage.Message != null || comms.CenterMessage.Message != "")
+            {
+                Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                Logger.LogError($"Title: {comms.Title}");
+                Logger.LogError($"Description: {comms.Description}");
+                Logger.LogError($"Command: {comms.Command}");
+                return false;
+            }
+            else if (comms.CenterMessage.Message == null || comms.CenterMessage.Message == "" && comms.Message != null || comms.Message != "")
+            {
+                Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                Logger.LogError($"Title: {comms.Title}");
+                Logger.LogError($"Description: {comms.Description}");
+                Logger.LogError($"Command: {comms.Command}");
+                return false;
+            }
+            else
+            {
+                Logger.LogError($"Message and CenterMessage are not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                Logger.LogError($"Title: {comms.Title}");
+                Logger.LogError($"Description: {comms.Description}");
+                Logger.LogError($"Command: {comms.Command}");
+                return false;
+            }
+        }
+        return true;
     }
 }
