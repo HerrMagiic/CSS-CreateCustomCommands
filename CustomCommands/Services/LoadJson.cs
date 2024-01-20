@@ -22,16 +22,20 @@ public class LoadJson : ILoadJson
 
         var pathofcommands = Path.Combine(path, "Commands");
         var defaultconfigpath = Path.Combine(path, "Commands.json");
-        var files = Directory.GetFiles(pathofcommands, "*.json", SearchOption.AllDirectories);
+
+        var files = new List<string>();
+
+        if (Directory.Exists(pathofcommands))
+            files.AddRange(Directory.GetFiles(pathofcommands, "*.json", SearchOption.AllDirectories));
 
         // Check if the default config file exists in plugins/CustomCommands
         if (File.Exists(defaultconfigpath))
         {
-            _ = files.Append(defaultconfigpath);
+            files.Add(defaultconfigpath);
             Logger.LogInformation("Found default config file.");
         }
         //
-        else if (!File.Exists(defaultconfigpath) && files.Length == 0)
+        else if (!File.Exists(defaultconfigpath) && files.Count == 0)
         {
             Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or in plugins/CustomCommands/Commands/<name>.json");
             return comms;
@@ -40,10 +44,14 @@ public class LoadJson : ILoadJson
         foreach (var file in files)
         {
             var json = File.ReadAllText(file);
+
+            // Validate the JSON file
+            if (!IsValidJsonSyntax(file))
+                continue;
+
             var commands = JsonSerializer.Deserialize<List<Commands>>(json);
             if (ValidateObject(commands, file))
                 comms.AddRange(commands!);
-            
         }
         return comms;
     }
@@ -59,6 +67,21 @@ public class LoadJson : ILoadJson
         }
         
     }
+    public bool IsValidJsonSyntax(string path)
+    {
+        try
+        {
+            var json = File.ReadAllText(path);
+            var document = JsonDocument.Parse(json);
+            return true;
+        }
+        catch (JsonException ex)
+        {
+            Logger.LogError($"Invalid JSON syntax in {path}. Please check the docs on how to create a valid JSON file");
+            Logger.LogError(ex.Message);
+            return false;
+        }
+    }
     public bool ValidateObject(List<Commands>? comms, string path)
     {
         if (comms == null)
@@ -66,9 +89,10 @@ public class LoadJson : ILoadJson
             Logger.LogError($"Invalid JSON format in {path}. Please check the docs on how to create a valid JSON file");
             return false;
         }
-        for (int i = comms.Count - 1; i >= 0 ; i--)
+        bool commandstatus = true;
+        for (int i = 0; i < comms.Count; i++)
         {
-            bool commandstatus = true;
+            commandstatus = true;
             // Title
             if (string.IsNullOrEmpty(comms[i].Title))
             {
@@ -94,36 +118,35 @@ public class LoadJson : ILoadJson
             {
                 Logger.LogError($"Command {comms[i].Command} will not be loaded. Index: {i}");
                 LogCommandDetails(comms[i]);
-                return false;
             }
-
-            return true;
         }
+        if (!commandstatus)
+            return false;
         return true;
     }
 
     public void LogCommandDetails(Commands comms)
     {
-            Logger.LogInformation($"Title: {comms.Title}");
-            Logger.LogInformation($"Description: {comms.Description}");
-            Logger.LogInformation($"Command: {comms.Command}");
-            Logger.LogInformation($"Message: {comms.Message}");
-            Logger.LogInformation($"CenterMessage: {comms.CenterMessage.Message}");
-            Logger.LogInformation($"CenterMessageTime: {comms.CenterMessage.Time}");
-            Logger.LogInformation($"PrintTo: {comms.PrintTo}");
-            Logger.LogInformation($"ServerCommands: {string.Join(", ", comms.ServerCommands)}");
-            Logger.LogInformation($"PermissionList: {string.Join(", ", comms.Permission.PermissionList)}");
-            Logger.LogInformation($"RequiresAllPermissions: {comms.Permission.RequiresAllPermissions}");
+        Logger.LogInformation($"-- Title: {comms.Title}");
+        Logger.LogInformation($"-- Description: {comms.Description}");
+        Logger.LogInformation($"-- Command: {comms.Command}");
+        Logger.LogInformation($"-- Message: {comms.Message}");
+        Logger.LogInformation($"-- CenterMessage: {comms.CenterMessage.Message}");
+        Logger.LogInformation($"-- CenterMessageTime: {comms.CenterMessage.Time}");
+        Logger.LogInformation($"-- PrintTo: {comms.PrintTo}");
+        Logger.LogInformation($"-- ServerCommands: {JsonSerializer.Serialize(comms.ServerCommands)}");
+        Logger.LogInformation($"-- PermissionList: {JsonSerializer.Serialize(comms.Permission)}");
+        Logger.LogInformation("--------------------------------------------------");
     }
 
     public bool PrintToCheck(Commands comms)
     {
         if (comms.PrintTo == Sender.ClientChat || comms.PrintTo == Sender.AllChat)
         {
-            if (string.IsNullOrEmpty(comms.Message))
+
+            if (!ValidateMessage(comms.Message))
             {
                 Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                    LogCommandDetails(comms);
                 return false;
             }
         }
@@ -132,19 +155,32 @@ public class LoadJson : ILoadJson
             if (string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
                 Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                LogCommandDetails(comms);
                 return false;
             }
         } 
         else
         {
-            if (string.IsNullOrEmpty(comms.Message) && string.IsNullOrEmpty(comms.CenterMessage.Message))
+            if (!ValidateMessage(comms.Message) && string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
                 Logger.LogError($"Message and CenterMessage are not set but needs to be set because PrintTo is set to {comms.PrintTo}");
-                LogCommandDetails(comms);
                 return false;
             }
         }
         return true;
+    }
+
+    public bool ValidateMessage(dynamic message)
+    {
+        if (message is JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == JsonValueKind.String)
+                return true;
+
+            if (jsonElement.ValueKind == JsonValueKind.Array)
+                return true;
+
+            return false;
+        }
+        return false;
     }
 }
