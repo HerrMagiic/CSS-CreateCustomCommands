@@ -3,7 +3,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Services;
 public class MessageManager : IMessageManager

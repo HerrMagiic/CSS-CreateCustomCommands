@@ -2,12 +2,12 @@
 
 public class Commands
 {
-    public required string Title { get; set; } = "";
+    public string Title { get; set; } = "";
     public string Description { get; set; } = "Description";
-    public required string Command { get; set; } = "testtesttest";
+    public string Command { get; set; } = "";
     public dynamic Message { get; set; } = "";
     public CenterElement CenterMessage { get; set; } = new();
-    public required Sender PrintTo { get; set; } = Sender.ClientChat;
+    public Sender PrintTo { get; set; } = Sender.ClientChat;
     public List<string> ServerCommands { get; set; } = new();
     public Permission Permission { get; set; } = new();
 }

@@ -112,3 +112,12 @@ Defines if the command requires specific permissions to execute:
 ### Colorlist
 
 ![CS2Colors](.github/img/ColorsCS2.png)
+
+### Multiple Files
+
+If you want to have multiple files instead of one big one create a folder in plugins/CustomCommands named Commands there you can create json files and folders as many as you want and with any name.
+
+
+## Contributing
+
+You are welcome to contribute to this project! Simply create a pull request, and it will be promptly reviewed.
