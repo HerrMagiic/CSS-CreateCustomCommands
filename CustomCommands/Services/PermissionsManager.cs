@@ -2,8 +2,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
-using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace CustomCommands.Services;
 

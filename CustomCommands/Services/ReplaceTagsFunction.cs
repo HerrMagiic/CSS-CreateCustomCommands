@@ -6,7 +6,6 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Utils;
 using CustomCommands.Interfaces;
-using CounterStrikeSharp.API.Core.Translations;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core.Plugin;
 

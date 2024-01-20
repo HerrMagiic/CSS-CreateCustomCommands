@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Services;
 
