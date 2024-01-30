@@ -10,7 +10,7 @@ public class CustomCommandsServiceCollection : IPluginServiceCollection<CustomCo
     public void ConfigureServices(IServiceCollection services)
     {
         services.Scan(scan => scan
-            .FromAssemblyOf<IPermissionsManager>()
+            .FromAssemblyOf<IRegisterCommands>()
             .AddClasses()
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime()
