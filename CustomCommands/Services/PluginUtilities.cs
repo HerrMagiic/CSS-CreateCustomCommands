@@ -10,10 +10,12 @@ namespace CustomCommands.Services;
 public class PluginUtilities : IPluginUtilities
 {
     private readonly IPluginGlobals PluginGlobals;
+    private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
     
-    public PluginUtilities(IPluginGlobals PluginGlobals)
+    public PluginUtilities(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
         this.PluginGlobals = PluginGlobals;
+        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
     }
 
     public string[] SplitStringByCommaOrSemicolon(string str)
@@ -23,13 +25,13 @@ public class PluginUtilities : IPluginUtilities
                         .ToArray();
     }
     
-    public void ExecuteServerCommands(Commands cmd) 
+    public void ExecuteServerCommands(Commands cmd, CCSPlayerController player) 
     {
         if (cmd.ServerCommands.Count == 0) return;
 
         foreach (var serverCommand in cmd.ServerCommands)
         {
-            Server.ExecuteCommand(serverCommand);
+            Server.ExecuteCommand(ReplaceTagsFunctions.ReplaceMessageTags(serverCommand, player));
         }
     }
     public bool RequiresPermissions(CCSPlayerController player, Permission permissions)
