@@ -38,7 +38,12 @@ public class RegisterCommands : IRegisterCommands
                 if (com.Permission.PermissionList.Count > 0 && com.Permission != null)
                     if (!PluginUtilities.RequiresPermissions(player, com.Permission)) 
                         return;
-                
+            
+                if(PluginUtilities.OnCooldown(player, com))
+                    return;
+
+                PluginUtilities.SetCooldown(player, com);
+
                 MessageManager.SendMessage(player, com);
 
                 PluginUtilities.ExecuteServerCommands(com, player);

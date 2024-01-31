@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
@@ -54,6 +55,65 @@ public class PluginUtilities : IPluginUtilities
                 return false;
             }
             return true;
+        }
+    }
+    public bool OnCooldown(CCSPlayerController player, Commands cmd)
+    {
+        
+        
+    }
+    /// <summary>
+    /// Sets the cooldown for the command
+    /// </summary>
+    /// <param name="player">Need to add the player if the Cooldown is only for a specific player</param>
+    /// <param name="cmd"></param>
+    public void SetCooldown(CCSPlayerController player, Commands cmd)
+    {
+        if (cmd.Cooldown is JsonElement jsonElement)
+        {
+            switch (jsonElement.ValueKind)
+            {
+                case JsonValueKind.Number:
+                    int cooldown = (int)cmd.Cooldown;
+
+                    if (cooldown == 0) 
+                        break;
+
+                    var timer = new CooldownTimer() {
+                        IsGlobal = false, 
+                        PlayerID = player.UserId ?? 0, 
+                        CommandID = cmd.ID, 
+                        CooldownTime = DateTime.Now.AddSeconds(cooldown)
+                    };
+                    PluginGlobals.CooldownTimer.Add(timer);
+
+                    break;
+                case JsonValueKind.Object:
+                    Cooldown cooldownObject = (Cooldown)cmd.Cooldown;
+
+                    if (cooldownObject.IsGlobal)
+                    {
+                        var timerObj = new CooldownTimer() {
+                            IsGlobal = true, 
+                            CommandID = cmd.ID, 
+                            CooldownTime = DateTime.Now.AddSeconds(cooldownObject.CooldownTime)
+                        };
+                        PluginGlobals.CooldownTimer.Add(timerObj);
+                    } else {
+                        var timerObj = new CooldownTimer() {
+                            IsGlobal = false, 
+                            PlayerID = player.UserId ?? 0, 
+                            CommandID = cmd.ID, 
+                            CooldownTime = DateTime.Now.AddSeconds(cooldownObject.CooldownTime)
+                        };
+                        PluginGlobals.CooldownTimer.Add(timerObj);
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }

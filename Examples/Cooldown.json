@@ -1,0 +1,24 @@
+[
+    //Simple cooldown command
+    {
+        "Title": "SimpleCooldown",
+        "Description": "Cooldown example command",
+        "Command": "cooldown",
+        "Cooldown": 10, // Cooldown in seconds
+        "Message": "Cool cooldown message!",
+        "PrintTo": 0
+    },
+    //Advanced cooldown command
+    {
+        "Title": "AdvCooldown",
+        "Description": "Cooldown example command",
+        "Command": "cooldown",
+        "Cooldown": {
+            "CooldownTime": 5,
+            "IsGlobal": false, // If true, cooldown will be global for all users
+            "CooldownMessage": "This command is on cooldown for {0} more seconds!"
+        },
+        "Message": "Cool cooldown message!",
+        "PrintTo": 0
+    }
+]
