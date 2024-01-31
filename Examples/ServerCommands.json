@@ -40,5 +40,15 @@
                 "@customcommands/surf"
             ]
         }
+    },
+    {
+        "Title": "Kickme",
+        "Description": "command that kicks yourself",
+        "Command": "kickme",
+        "Message": "Getting Kicket",
+        "PrintTo": 0,
+        "ServerCommands": [
+            "kick {PLAYERNAME}" // Tags work for commands as well
+        ]
     }
 ]

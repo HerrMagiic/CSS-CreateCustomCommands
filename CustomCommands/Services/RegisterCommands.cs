@@ -41,7 +41,7 @@ public class RegisterCommands : IRegisterCommands
                 
                 MessageManager.SendMessage(player, com);
 
-                PluginUtilities.ExecuteServerCommands(com);
+                PluginUtilities.ExecuteServerCommands(com, player);
             });
         }
     }
