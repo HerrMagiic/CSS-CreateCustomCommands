@@ -19,8 +19,8 @@ public class PluginUtilities : IPluginUtilities
     public string[] SplitStringByCommaOrSemicolon(string str)
     {
         return Regex.Split(str, ",|;|\\s")
-                            .Where(s => !string.IsNullOrEmpty(s))
-                            .ToArray();
+                        .Where(s => !string.IsNullOrEmpty(s))
+                        .ToArray();
     }
     
     public void ExecuteServerCommands(Commands cmd) 
