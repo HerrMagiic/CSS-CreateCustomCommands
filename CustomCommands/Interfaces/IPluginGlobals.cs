@@ -8,4 +8,5 @@ public interface IPluginGlobals
     CenterServerElement centerServerOn { get; set; }
     CustomCommandsConfig Config { get; set; }
     List<CooldownTimer> CooldownTimer { get; set; }
+    List<Commands> CustomCommands { get; set; }
 }

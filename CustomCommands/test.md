@@ -5,3 +5,4 @@
 * [ ] check if the string pattern check works
 * [ ] check cooldown funktion for normal int and than object
 * [ ] check if padleft color tag works now
+* [ ] check if command args works
