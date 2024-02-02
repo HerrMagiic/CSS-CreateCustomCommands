@@ -37,17 +37,23 @@ public class RegisterCommands : IRegisterCommands
             {
                 if (player == null) return;
                 
-                if (com.Permission.PermissionList.Count > 0 && com.Permission != null)
-                    if (!PluginUtilities.RequiresPermissions(player, com.Permission)) 
+                var command = com;
+                if (info.ArgCount > 0)
+                {
+                    command = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i])) ?? com;
+                }
+
+                if (command.Permission.PermissionList.Count > 0 && command.Permission != null)
+                    if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
                         return;
             
-                if(CooldownManager.IsCommandOnCooldown(player, com)) return;
+                if(CooldownManager.IsCommandOnCooldown(player, command)) return;
 
-                CooldownManager.SetCooldown(player, com);
+                CooldownManager.SetCooldown(player, command);
 
-                MessageManager.SendMessage(player, com);
+                MessageManager.SendMessage(player, command);
 
-                PluginUtilities.ExecuteServerCommands(com, player);
+                PluginUtilities.ExecuteServerCommands(command, player);
             });
         }
     }
