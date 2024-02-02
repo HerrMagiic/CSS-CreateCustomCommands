@@ -1,7 +1,7 @@
 name: .NET 7 Build and Release
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
