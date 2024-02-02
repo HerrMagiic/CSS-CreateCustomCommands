@@ -1,4 +1,3 @@
-
 using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 using CustomCommands.Model;

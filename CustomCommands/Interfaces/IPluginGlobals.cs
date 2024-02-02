@@ -1,4 +1,3 @@
-using CounterStrikeSharp.API.Core;
 using CustomCommands.Model;
 
 namespace CustomCommands.Interfaces;
