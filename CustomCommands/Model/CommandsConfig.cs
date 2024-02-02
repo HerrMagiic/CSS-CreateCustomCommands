@@ -12,7 +12,6 @@ public class Commands
     public Sender PrintTo { get; set; } = Sender.ClientChat;
     public List<string> ServerCommands { get; set; } = new();
     public Permission Permission { get; set; } = new();
-
 }
 public class Cooldown
 {

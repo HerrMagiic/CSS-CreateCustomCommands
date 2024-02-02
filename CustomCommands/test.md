@@ -7,3 +7,5 @@
 * [ ] check if padleft color tag works now
   * [ ] If this works remove all spaced in the example files with color tags
 * [ ] check if command args works
+  * [ ] check if duplicated commands still wont work with this feature
+* [ ] check if toggle feature works

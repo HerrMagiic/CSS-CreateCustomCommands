@@ -55,7 +55,6 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         {
             // Return the group captured in the regex, which is the string after "="
             string lang = match.Groups[1].Value;
-
             return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
         }
         else
