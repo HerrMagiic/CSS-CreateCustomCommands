@@ -1,7 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CustomCommands.Interfaces;
-using CustomCommands.Services;
 using Microsoft.Extensions.Logging;
 
 namespace CustomCommands;
