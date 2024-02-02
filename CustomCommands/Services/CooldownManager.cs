@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CounterStrikeSharp.API.Core;
 using CustomCommands.Model;
+using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Interfaces;
 
@@ -38,8 +39,15 @@ public class CooldownManager : ICooldownManager
         if (index != -1)
         {
             string timeleft = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).Seconds.ToString();
-            player.PrintToChat($"{PluginGlobals.Config.Prefix}{cmd.Cooldown.CooldownMessage.Replace("{TIME}", timeleft) 
-                ?? $"This command is for {timeleft} seconds on cooldown"}");
+            string message = "";
+
+            // Check if cmd.Cooldown is a Cooldown object
+            if (cmd.Cooldown is Cooldown cooldown)
+                message = cooldown.CooldownMessage.Replace("{TIME}", timeleft);
+            else
+                message = $"This command is for {timeleft} seconds on cooldown";
+
+            player.PrintToChat($"{PluginGlobals.Config.Prefix}{message}");
 
             return true;
         }
@@ -61,12 +69,14 @@ public class CooldownManager : ICooldownManager
             CommandID = commandID, 
             CooldownTime = DateTime.Now.AddSeconds(cooldownTime)
         };
-
+        Console.WriteLine("Cooldown 2");
         if (isGlobal)
         {
+            Console.WriteLine("Cooldown 3");
             int index = PluginGlobals.CooldownTimer.FindIndex(x => 
                 x.IsGlobal == true 
                 && x.CommandID == commandID);
+
             if (index != -1)
                 PluginGlobals.CooldownTimer[index].CooldownTime = timer.CooldownTime;
             else
@@ -97,7 +107,8 @@ public class CooldownManager : ICooldownManager
             switch (jsonElement.ValueKind)
             {
                 case JsonValueKind.Number:
-                    int cooldown = (int)cmd.Cooldown;
+
+                    int cooldown = cmd.Cooldown.GetInt32();
                     if (cooldown == 0) 
                         break;
 
@@ -105,9 +116,10 @@ public class CooldownManager : ICooldownManager
                     break;
 
                 case JsonValueKind.Object:
-                    Cooldown cooldownObject = (Cooldown)cmd.Cooldown;
 
+                    var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                     AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
+                    
                     break;
 
                 default:

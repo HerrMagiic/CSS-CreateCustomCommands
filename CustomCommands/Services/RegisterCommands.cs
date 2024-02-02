@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
@@ -33,16 +34,28 @@ public class RegisterCommands : IRegisterCommands
 
         for (int i = 0; i < aliases.Length; i++)
         {
-            plugin.AddCommand(aliases[i], com.Description, (player, info) =>
+            string alias = aliases[i];
+            plugin.AddCommand(alias, com.Description, (player, info) =>
             {
                 if (player == null) return;
                 
                 var command = com;
-                
-                if (info.ArgCount > 1)
-                    command = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i])) ?? com;
 
-                if (command.Permission.PermissionList.Count > 0 && command.Permission != null)
+                // Check if the command has arguments and if it does, check if the command exists and is the right one
+                if (info.ArgCount > 1)
+                {
+                    var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(alias + $" {info.ArgString}"));
+                    // Check if the command is the right one with the right arguments
+                    if (findcommand! != command)
+                        return;
+
+                    command = findcommand;
+                }
+                // This will exit the command if the command has arguments but the client didn't provide any
+                if (command!.Command.Contains(alias + " ") && info.ArgCount <= 1) 
+                    return;
+
+                if (command!.Permission.PermissionList.Count > 0 && command.Permission != null)
                     if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
                         return;
             
