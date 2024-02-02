@@ -22,7 +22,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore --path ./CustomCommands
 
     - name: Publish
       run: dotnet publish --configuration Release --no-build --output ./out
