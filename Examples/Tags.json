@@ -75,5 +75,12 @@
         "Command": "playercount",
         "Message": "Current playercount: {PLAYERS}",
         "PrintTo": 0
+    },
+    {
+        "Title": "UserID",
+        "Description": "Displays Player #userid",
+        "Command": "userid",
+        "Message": "Current players userid: {USERID}",
+        "PrintTo": 0
     }
 ]
