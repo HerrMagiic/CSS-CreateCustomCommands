@@ -5,4 +5,5 @@
 * [ ] check if the string pattern check works
 * [ ] check cooldown funktion for normal int and than object
 * [ ] check if padleft color tag works now
+  * [ ] If this works remove all spaced in the example files with color tags
 * [ ] check if command args works
