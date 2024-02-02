@@ -72,7 +72,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
             {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
             {"{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>"},
-            {"{USERID}", player.UserId.ToString() ?? "<USERID not found>"},
+            {"{USERID}", player.Slot.ToString() ?? "<USERID not found>"},
             {"{STEAMID2}", steamId.SteamId2 ?? "<STEAMID2 not found>"},
             {"{STEAMID3}", steamId.SteamId3 ?? "<STEAMID3 not found>"},
             {"{STEAMID32}", steamId.SteamId32.ToString() ?? "<STEAMID32 not found>"},
