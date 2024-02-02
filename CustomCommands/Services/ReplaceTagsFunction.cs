@@ -15,15 +15,13 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     private readonly IPluginGlobals PluginGlobals;
     private readonly PluginContext PluginContext;
     private readonly ILogger<CustomCommands> Logger;
-    private readonly IPluginUtilities PluginUtilities;
     
     public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
-                                    ILogger<CustomCommands> Logger, IPluginUtilities PluginUtilities)
+                                    ILogger<CustomCommands> Logger)
     {
         this.PluginGlobals = PluginGlobals;
         this.PluginContext = (PluginContext as PluginContext)!;
         this.Logger = Logger;
-        this.PluginUtilities = PluginUtilities;
     }
 
     public string[] ReplaceTags(string[] input, CCSPlayerController player)
@@ -96,7 +94,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     public string ReplaceColorTags(string input)
     {
         // PadLeft the color tag if it's not already there because the game doesn't support color tags at the start of a string.
-        input = PluginUtilities.PadLeftColorTag(input);
+        input = PadLeftColorTag(input);
 
         Dictionary<string, string> replacements = new()
         {
@@ -163,5 +161,43 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         }
 
         return output.ToArray();
+    }
+
+    /// <summary>
+    /// Moves the color tag one space the the left if it's not already there.
+    /// Because the game doesn't support color tags at the start of a string.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    private string PadLeftColorTag(string input)
+    {
+        string[] colorTagList = new string[] {
+            "{DEFAULT}",
+            "{WHITE}",
+            "{DARKRED}",
+            "{RED}",
+            "{LIGHTRED}",
+            "{GREEN}",
+            "{LIME}",
+            "{OLIVE}",
+            "{ORANGE}",
+            "{GOLD}",
+            "{YELLOW}",
+            "{BLUE}",
+            "{DARKBLUE}",
+            "{LIGHTPURPLE}",
+            "{PURPLE}",
+            "{SILVER}",
+            "{BLUEGREY}",
+            "{GREY}",
+        };
+        foreach (var colorTag in colorTagList)
+        {
+            if (input.StartsWith(colorTag))
+            {
+                return " " + input;
+            }
+        }
+        return input;
     }
 }

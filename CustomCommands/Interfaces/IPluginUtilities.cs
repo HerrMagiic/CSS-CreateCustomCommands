@@ -8,5 +8,4 @@ public interface IPluginUtilities
     string[] SplitStringByCommaOrSemicolon(string str);
     void ExecuteServerCommands(Commands cmd, CCSPlayerController player);
     bool RequiresPermissions(CCSPlayerController player, Permission permissions);
-    string PadLeftColorTag(string input);
 }
