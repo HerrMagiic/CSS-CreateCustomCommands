@@ -39,8 +39,7 @@ public class RegisterCommands : IRegisterCommands
                     if (!PluginUtilities.RequiresPermissions(player, com.Permission)) 
                         return;
             
-                if(PluginUtilities.OnCooldown(player, com))
-                    return;
+                if(PluginUtilities.IsCommandOnCooldown(player, com)) return;
 
                 PluginUtilities.SetCooldown(player, com);
 
