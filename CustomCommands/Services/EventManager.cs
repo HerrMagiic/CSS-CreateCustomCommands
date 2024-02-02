@@ -1,4 +1,3 @@
-
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -24,6 +23,7 @@ public class EventManager : IEventManager
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
         PluginGlobals.centerClientOn.RemoveAll(p => p.ClientId == @event.Userid.UserId);
+        PluginGlobals.CooldownTimer.RemoveAll(p => p.PlayerID == @event.Userid.UserId);
 
         return HookResult.Continue;
     }

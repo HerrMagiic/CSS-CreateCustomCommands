@@ -1,4 +1,3 @@
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core.Plugin;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
@@ -10,24 +9,27 @@ public class RegisterCommands : IRegisterCommands
     private readonly ILogger<CustomCommands> Logger;
     private readonly IMessageManager MessageManager;
     private readonly IPluginGlobals PluginGlobals;
-    private readonly IPermissionsManager PermissionsManager;
     private readonly PluginContext PluginContext;
+    private readonly IPluginUtilities PluginUtilities;
+    private readonly ICooldownManager CooldownManager;
 
     public RegisterCommands(ILogger<CustomCommands> Logger, IMessageManager MessageManager, 
-                                IPluginGlobals PluginGlobals, IPermissionsManager PermissionsManager, IPluginContext PluginContext)
+                                IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
+                                IPluginUtilities PluginUtilities, ICooldownManager CooldownManager)
     {
         this.Logger = Logger;
         this.MessageManager = MessageManager;
         this.PluginGlobals = PluginGlobals;
-        this.PermissionsManager = PermissionsManager;
         this.PluginContext = (PluginContext as PluginContext)!;
+        this.PluginUtilities = PluginUtilities;
+        this.CooldownManager = CooldownManager;
     }
 
     public void AddCommands(Commands com)
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
         
-        string[] aliases = com.Command.Split(',');
+        string[] aliases = PluginUtilities.SplitStringByCommaOrSemicolon(com.Command);
 
         for (int i = 0; i < aliases.Length; i++)
         {
@@ -35,13 +37,23 @@ public class RegisterCommands : IRegisterCommands
             {
                 if (player == null) return;
                 
-                if (com.Permission.PermissionList.Count > 0 && com.Permission != null)
-                    if (!PermissionsManager.RequiresPermissions(player, com.Permission)) 
-                        return;
-                
-                MessageManager.SendMessage(player, com);
+                var command = com;
+                if (info.ArgCount > 0)
+                {
+                    command = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i])) ?? com;
+                }
 
-                ExecuteServerCommands(com);
+                if (command.Permission.PermissionList.Count > 0 && command.Permission != null)
+                    if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
+                        return;
+            
+                if(CooldownManager.IsCommandOnCooldown(player, command)) return;
+
+                CooldownManager.SetCooldown(player, command);
+
+                MessageManager.SendMessage(player, command);
+
+                PluginUtilities.ExecuteServerCommands(command, player);
             });
         }
     }
@@ -88,14 +100,5 @@ public class RegisterCommands : IRegisterCommands
         Logger.LogError($"------------------------------------------------------------------------");
 
         return commands;
-    }
-    public void ExecuteServerCommands(Commands cmd) 
-    {
-        if (cmd.ServerCommands.Count == 0) return;
-
-        foreach (var serverCommand in cmd.ServerCommands)
-        {
-            Server.ExecuteCommand(serverCommand);
-        }
     }
 }

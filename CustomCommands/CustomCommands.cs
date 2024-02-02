@@ -9,7 +9,7 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "1.0.9";
+    public override string ModuleVersion => "2.0.0";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
@@ -59,6 +59,8 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
 
         if (comms != null) 
         {
+            PluginGlobals.CustomCommands = comms;
+
             comms = RegisterCommands.CheckForDuplicateCommands(comms);
             // Add commands from the JSON file to the server
             foreach (var com in comms)

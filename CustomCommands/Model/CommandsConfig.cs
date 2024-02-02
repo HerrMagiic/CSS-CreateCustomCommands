@@ -2,14 +2,22 @@
 
 public class Commands
 {
+    public Guid ID { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = "";
     public string Description { get; set; } = "Description";
     public string Command { get; set; } = "";
+    public dynamic Cooldown { get; set; } = 0;
     public dynamic Message { get; set; } = "";
     public CenterElement CenterMessage { get; set; } = new();
     public Sender PrintTo { get; set; } = Sender.ClientChat;
     public List<string> ServerCommands { get; set; } = new();
     public Permission Permission { get; set; } = new();
+}
+public class Cooldown
+{
+    public int CooldownTime { get; set; } = 0;
+    public bool IsGlobal { get; set; } = false;
+    public string CooldownMessage { get; set; } = "";
 }
 public class Permission
 {

@@ -15,12 +15,15 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     private readonly IPluginGlobals PluginGlobals;
     private readonly PluginContext PluginContext;
     private readonly ILogger<CustomCommands> Logger;
+    private readonly IPluginUtilities PluginUtilities;
     
-    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, ILogger<CustomCommands> Logger)
+    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
+                                    ILogger<CustomCommands> Logger, IPluginUtilities PluginUtilities)
     {
         this.PluginGlobals = PluginGlobals;
         this.PluginContext = (PluginContext as PluginContext)!;
         this.Logger = Logger;
+        this.PluginUtilities = PluginUtilities;
     }
 
     public string[] ReplaceTags(string[] input, CCSPlayerController player)
@@ -52,7 +55,6 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         {
             // Return the group captured in the regex, which is the string after "="
             string lang = match.Groups[1].Value;
-
             return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
         }
         else
@@ -64,7 +66,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     public string ReplaceMessageTags(string input, CCSPlayerController player)
     {
         SteamID steamId = new SteamID(player.SteamID);
-
+        
         Dictionary<string, string> replacements = new()
         {
             {"{PREFIX}", PluginGlobals.Config.Prefix ?? "<PREFIX not found>"},
@@ -72,6 +74,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
             {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
             {"{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>"},
+            {"{USERID}", player.Slot.ToString() ?? "<USERID not found>"},
             {"{STEAMID2}", steamId.SteamId2 ?? "<STEAMID2 not found>"},
             {"{STEAMID3}", steamId.SteamId3 ?? "<STEAMID3 not found>"},
             {"{STEAMID32}", steamId.SteamId32.ToString() ?? "<STEAMID32 not found>"},
@@ -92,6 +95,9 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
 
     public string ReplaceColorTags(string input)
     {
+        // PadLeft the color tag if it's not already there because the game doesn't support color tags at the start of a string.
+        input = PluginUtilities.PadLeftColorTag(input);
+
         Dictionary<string, string> replacements = new()
         {
             {"{DEFAULT}", $"{ChatColors.Default}"},
