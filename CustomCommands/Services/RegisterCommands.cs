@@ -39,8 +39,7 @@ public class RegisterCommands : IRegisterCommands
                 
                 var command = com;
                 
-                Logger.LogInformation(info.ArgCount.ToString());
-                if (info.ArgCount > 0)
+                if (info.ArgCount > 1)
                     command = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i])) ?? com;
 
                 if (command.Permission.PermissionList.Count > 0 && command.Permission != null)
@@ -70,12 +69,12 @@ public class RegisterCommands : IRegisterCommands
 
             foreach (var alias in aliases)
             {
-                if (commandNames.Contains(alias))
+                if (commandNames.Contains(alias.ToLower()))
                 {
                     duplicateCommands.Add(com);
                     continue;
                 }
-                commandNames.Add(alias);
+                commandNames.Add(alias.ToLower());
             }
         }
         
