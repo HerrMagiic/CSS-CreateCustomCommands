@@ -15,12 +15,15 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     private readonly IPluginGlobals PluginGlobals;
     private readonly PluginContext PluginContext;
     private readonly ILogger<CustomCommands> Logger;
+    private readonly IPluginUtilities PluginUtilities;
     
-    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, ILogger<CustomCommands> Logger)
+    public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
+                                    ILogger<CustomCommands> Logger, IPluginUtilities PluginUtilities)
     {
         this.PluginGlobals = PluginGlobals;
         this.PluginContext = (PluginContext as PluginContext)!;
         this.Logger = Logger;
+        this.PluginUtilities = PluginUtilities;
     }
 
     public string[] ReplaceTags(string[] input, CCSPlayerController player)
@@ -93,6 +96,9 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
 
     public string ReplaceColorTags(string input)
     {
+        // PadLeft the color tag if it's not already there because the game doesn't support color tags at the start of a string.
+        input = PluginUtilities.PadLeftColorTag(input);
+
         Dictionary<string, string> replacements = new()
         {
             {"{DEFAULT}", $"{ChatColors.Default}"},

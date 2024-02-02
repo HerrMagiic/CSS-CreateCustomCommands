@@ -11,16 +11,18 @@ public class RegisterCommands : IRegisterCommands
     private readonly IPluginGlobals PluginGlobals;
     private readonly PluginContext PluginContext;
     private readonly IPluginUtilities PluginUtilities;
+    private readonly ICooldownManager CooldownManager;
 
     public RegisterCommands(ILogger<CustomCommands> Logger, IMessageManager MessageManager, 
                                 IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
-                                IPluginUtilities PluginUtilities)
+                                IPluginUtilities PluginUtilities, ICooldownManager CooldownManager)
     {
         this.Logger = Logger;
         this.MessageManager = MessageManager;
         this.PluginGlobals = PluginGlobals;
         this.PluginContext = (PluginContext as PluginContext)!;
         this.PluginUtilities = PluginUtilities;
+        this.CooldownManager = CooldownManager;
     }
 
     public void AddCommands(Commands com)
@@ -39,9 +41,9 @@ public class RegisterCommands : IRegisterCommands
                     if (!PluginUtilities.RequiresPermissions(player, com.Permission)) 
                         return;
             
-                if(PluginUtilities.IsCommandOnCooldown(player, com)) return;
+                if(CooldownManager.IsCommandOnCooldown(player, com)) return;
 
-                PluginUtilities.SetCooldown(player, com);
+                CooldownManager.SetCooldown(player, com);
 
                 MessageManager.SendMessage(player, com);
 
