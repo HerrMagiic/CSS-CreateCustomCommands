@@ -9,3 +9,7 @@
 * [ ] check if command args works
   * [ ] check if duplicated commands still wont work with this feature
 * [ ] check if toggle feature works
+
+
+
+test
