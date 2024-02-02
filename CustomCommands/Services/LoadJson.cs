@@ -18,10 +18,11 @@ public class LoadJson : ILoadJson
     {
         var comms = new List<Commands>();
 
+        string defaultconfigpath = Path.Combine(path, "Commands.json");
+
         CheckForExampleFile(path);
 
         var pathofcommands = Path.Combine(path, "Commands");
-        var defaultconfigpath = Path.Combine(path, "Commands.json");
 
         var files = new List<string>();
 
@@ -34,7 +35,6 @@ public class LoadJson : ILoadJson
             files.Add(defaultconfigpath);
             Logger.LogInformation("Found default config file.");
         }
-        //
         else if (!File.Exists(defaultconfigpath) && files.Count == 0)
         {
             Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or in plugins/CustomCommands/Commands/<name>.json");
@@ -58,6 +58,13 @@ public class LoadJson : ILoadJson
     // Check if the Command.json file exists. If not replace it with the example file
     public void CheckForExampleFile(string path)
     {
+        if (Directory.Exists(Path.Combine(path, "Commands")))
+        {
+            var files = Directory.GetFiles(Path.Combine(path, "Commands"), "*.json", SearchOption.AllDirectories);
+            if (files.Length > 0)
+                return;
+        }
+
         var defaultconfigpath = Path.Combine(path, "Commands.json");
         var exampleconfigpath = Path.Combine(path, "Commands.example.json");
         if (!File.Exists(defaultconfigpath))
@@ -65,7 +72,6 @@ public class LoadJson : ILoadJson
             File.Copy(exampleconfigpath, defaultconfigpath);
             Logger.LogInformation("Created default config file.");
         }
-        
     }
     public bool IsValidJsonSyntax(string path)
     {
