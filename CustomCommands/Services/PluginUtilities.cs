@@ -98,41 +98,4 @@ public class PluginUtilities : IPluginUtilities
             return true;
         }
     }
-    /// <summary>
-    /// Moves the color tag one space the the left if it's not already there.
-    /// Because the game doesn't support color tags at the start of a string.
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    public string PadLeftColorTag(string input)
-    {
-        string[] colorTagList = new string[] {
-            "{DEFAULT}",
-            "{WHITE}",
-            "{DARKRED}",
-            "{RED}",
-            "{LIGHTRED}",
-            "{GREEN}",
-            "{LIME}",
-            "{OLIVE}",
-            "{ORANGE}",
-            "{GOLD}",
-            "{YELLOW}",
-            "{BLUE}",
-            "{DARKBLUE}",
-            "{LIGHTPURPLE}",
-            "{PURPLE}",
-            "{SILVER}",
-            "{BLUEGREY}",
-            "{GREY}",
-        };
-        foreach (var colorTag in colorTagList)
-        {
-            if (input.StartsWith(colorTag))
-            {
-                return " " + input;
-            }
-        }
-        return input;
-    }
 }

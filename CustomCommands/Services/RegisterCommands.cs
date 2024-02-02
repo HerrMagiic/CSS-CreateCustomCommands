@@ -38,10 +38,10 @@ public class RegisterCommands : IRegisterCommands
                 if (player == null) return;
                 
                 var command = com;
+                
+                Logger.LogInformation(info.ArgCount.ToString());
                 if (info.ArgCount > 0)
-                {
                     command = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i])) ?? com;
-                }
 
                 if (command.Permission.PermissionList.Count > 0 && command.Permission != null)
                     if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
