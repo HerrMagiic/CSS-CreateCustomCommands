@@ -31,7 +31,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         for (int i = 0; i < input.Length; i++)
         {
             output[i] = ReplaceLanguageTags(input[i]);
-            output[i] = ReplaceMessageTags(output[i], player);
+            output[i] = ReplaceMessageTags(output[i], player, false);
             output[i] = ReplaceColorTags(output[i]);
         }
 
@@ -61,7 +61,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             return input;
         }
     }
-    public string ReplaceMessageTags(string input, CCSPlayerController player)
+    public string ReplaceMessageTags(string input, CCSPlayerController player, bool safety = true)
     {
         SteamID steamId = new SteamID(player.SteamID);
         
@@ -71,7 +71,6 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{MAP}", NativeAPI.GetMapName() ?? "<MAP not found>"},
             {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
             {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
-            {"{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>"},
             {"{USERID}", player.Slot.ToString() ?? "<USERID not found>"},
             {"{STEAMID2}", steamId.SteamId2 ?? "<STEAMID2 not found>"},
             {"{STEAMID3}", steamId.SteamId3 ?? "<STEAMID3 not found>"},
@@ -84,6 +83,8 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{PLAYERS}",
                 Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"}
         };
+        if (!safety)
+            replacements.Add("{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>");
 
         foreach (var pair in replacements)
             input = input.Replace(pair.Key, pair.Value);
