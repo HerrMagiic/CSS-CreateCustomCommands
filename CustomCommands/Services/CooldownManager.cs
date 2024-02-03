@@ -38,7 +38,7 @@ public class CooldownManager : ICooldownManager
 
         if (index != -1)
         {
-            string timeleft = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).Seconds.ToString();
+            string timeleft = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds.ToString();
             string message = "";
 
             // Check if cmd.Cooldown is a Cooldown object
