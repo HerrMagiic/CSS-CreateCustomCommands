@@ -52,7 +52,7 @@ public class EventManager : IEventManager
             {
                 Utilities.GetPlayers().ForEach(controller =>
                 {
-                    if (controller == null || !controller.IsValid) return;
+                    if (!controller.IsValid || controller.SteamID == 0) return;
                     
                     string message = ReplaceTagsFunctions.ReplaceLanguageTags(PluginGlobals.centerServerOn.Message);
                     message = ReplaceTagsFunctions.ReplaceMessageTags(message, controller);
