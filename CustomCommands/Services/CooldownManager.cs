@@ -43,7 +43,7 @@ public class CooldownManager : ICooldownManager
 
             // Check if cmd.Cooldown is a Cooldown object
             if (cmd.Cooldown is Cooldown cooldown)
-                message = cooldown.CooldownMessage.Replace("{TIME}", timeleft);
+                message = cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft);
             else
                 message = $"This command is for {timeleft} seconds on cooldown";
 
