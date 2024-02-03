@@ -69,10 +69,9 @@ public class CooldownManager : ICooldownManager
             CommandID = commandID, 
             CooldownTime = DateTime.Now.AddSeconds(cooldownTime)
         };
-        Console.WriteLine("Cooldown 2");
+
         if (isGlobal)
         {
-            Console.WriteLine("Cooldown 3");
             int index = PluginGlobals.CooldownTimer.FindIndex(x => 
                 x.IsGlobal == true 
                 && x.CommandID == commandID);
