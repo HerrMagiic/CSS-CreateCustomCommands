@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
 
@@ -8,9 +9,11 @@ namespace CustomCommands.Interfaces;
 public class CooldownManager : ICooldownManager
 {
     public IPluginGlobals PluginGlobals { get; }
-    public CooldownManager(IPluginGlobals PluginGlobals)
+    public IReplaceTagsFunctions ReplaceTagsFunctions { get; }
+    public CooldownManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
         this.PluginGlobals = PluginGlobals;
+        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
     }
     
     /// <summary>
@@ -38,15 +41,25 @@ public class CooldownManager : ICooldownManager
 
         if (index != -1)
         {
-            string timeleft = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds.ToString();
+            double totalSeconds = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
+            int totalSecondsRounded = (int)Math.Round(totalSeconds);
+            string timeleft = totalSecondsRounded.ToString();
+
             string message = "";
-
-            // Check if cmd.Cooldown is a Cooldown object
-            if (cmd.Cooldown is Cooldown cooldown)
-                message = cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft);
-            else
+            
+            // This is ugly as fuck
+            try
+            {
+                Cooldown cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
+                Console.WriteLine(cooldown.CooldownMessage);
+                string[] replaceTimeleft = {cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft)};
+                message = ReplaceTagsFunctions.ReplaceTags(replaceTimeleft, player)[0];
+            }
+            catch (JsonException)
+            {
                 message = $"This command is for {timeleft} seconds on cooldown";
-
+            }
+                
             player.PrintToChat($"{PluginGlobals.Config.Prefix}{message}");
 
             return true;
