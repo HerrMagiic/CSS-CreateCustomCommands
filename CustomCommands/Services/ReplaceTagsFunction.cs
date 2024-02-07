@@ -83,6 +83,8 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{PLAYERS}",
                 Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"}
         };
+
+        // Prevent vounrability by not replacing {PLAYERNAME} if safety is true/ServerCommands are being executed
         if (!safety)
             replacements.Add("{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>");
 
