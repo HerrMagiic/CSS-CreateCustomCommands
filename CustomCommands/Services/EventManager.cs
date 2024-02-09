@@ -60,5 +60,11 @@ public class EventManager : IEventManager
                 });
             }
         });
+
+        plugin.RegisterListener<Listeners.OnMapEnd>(() =>
+        {
+            PluginGlobals.centerClientOn.Clear();
+            PluginGlobals.CooldownTimer.Clear();
+        });
     }
 }
