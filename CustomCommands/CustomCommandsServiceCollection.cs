@@ -9,6 +9,7 @@ public class CustomCommandsServiceCollection : IPluginServiceCollection<CustomCo
 {
     public void ConfigureServices(IServiceCollection services)
     {
+        // Scans the interface in the CustomCommands.Interfaces namespace and adds the classes that implement the interface to the service collection automatically
         services.Scan(scan => scan
             .FromAssemblyOf<IRegisterCommands>()
             .AddClasses()

@@ -14,6 +14,11 @@ public class LoadJson : ILoadJson
         this.Logger = Logger;
     }
 
+    /// <summary>
+    /// Retrieves a list of commands from JSON files located in the specified path.
+    /// </summary>
+    /// <param name="path">The path where the JSON files are located.</param>
+    /// <returns>A list of commands.</returns>
     public List<Commands> GetCommandsFromJsonFiles(string path)
     {
         var comms = new List<Commands>();
@@ -55,7 +60,12 @@ public class LoadJson : ILoadJson
         }
         return comms;
     }
-    // Check if the Command.json file exists. If not replace it with the example file
+    
+
+    /// <summary>
+    /// Checks if an .example file exists in the specified path and creates a default config file if it doesn't exist.
+    /// </summary>
+    /// <param name="path">The path to check for the example file.</param>
     public void CheckForExampleFile(string path)
     {
         if (Directory.Exists(Path.Combine(path, "Commands")))
@@ -73,6 +83,12 @@ public class LoadJson : ILoadJson
             Logger.LogInformation("Created default config file.");
         }
     }
+
+    /// <summary>
+    /// Checks if the JSON file has a valid syntax.
+    /// </summary>
+    /// <param name="path">The path to the JSON file.</param>
+    /// <returns>True if the JSON syntax is valid, false otherwise.</returns>
     public bool IsValidJsonSyntax(string path)
     {
         try
@@ -88,6 +104,13 @@ public class LoadJson : ILoadJson
             return false;
         }
     }
+
+    /// <summary>
+    /// Validates the list of commands loaded from a JSON file.
+    /// </summary>
+    /// <param name="comms">The list of commands to validate.</param>
+    /// <param name="path">The path of the JSON file.</param>
+    /// <returns>True if all commands are valid, false otherwise.</returns>
     public bool ValidateObject(List<Commands>? comms, string path)
     {
         if (comms == null)
@@ -131,6 +154,10 @@ public class LoadJson : ILoadJson
         return true;
     }
 
+    /// <summary>
+    /// Logs the details of a command.
+    /// </summary>
+    /// <param name="comms">The command to log.</param>
     public void LogCommandDetails(Commands comms)
     {
         Logger.LogInformation($"-- Title: {comms.Title}");
@@ -145,6 +172,11 @@ public class LoadJson : ILoadJson
         Logger.LogInformation("--------------------------------------------------");
     }
 
+    /// <summary>
+    /// Validates the PrintTo property of the Commands object and checks if the required message properties are set based on the PrintTo value.
+    /// </summary>
+    /// <param name="comms">The Commands object to validate.</param>
+    /// <returns>True if the PrintTo property is valid and the required message properties are set; otherwise, false.</returns>
     public bool PrintToCheck(Commands comms)
     {
         if (comms.PrintTo == Sender.ClientChat || comms.PrintTo == Sender.AllChat)
@@ -175,6 +207,11 @@ public class LoadJson : ILoadJson
         return true;
     }
 
+    /// <summary>
+    /// Validates a dynamic message by checking if it is a string or an array.
+    /// </summary>
+    /// <param name="message">The dynamic message to validate.</param>
+    /// <returns>True if the message is a string or an array, otherwise false.</returns>
     public bool ValidateMessage(dynamic message)
     {
         if (message is JsonElement jsonElement)

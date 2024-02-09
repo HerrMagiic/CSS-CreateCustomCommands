@@ -32,6 +32,7 @@ public class EventManager : IEventManager
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
 
+        // Register the OnTick event for PrintToCenterHtml duration
         plugin.RegisterListener<Listeners.OnTick>(() =>
         {
             // Client Print To Center

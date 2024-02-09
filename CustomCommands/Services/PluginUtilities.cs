@@ -23,6 +23,11 @@ public class PluginUtilities : IPluginUtilities
         this.Logger = Logger;
     }
 
+    /// <summary>
+    /// Splits a string by comma, semicolon, or whitespace characters.
+    /// </summary>
+    /// <param name="str">The string to be split.</param>
+    /// <returns>An array of strings containing the split substrings.</returns>
     public string[] SplitStringByCommaOrSemicolon(string str)
     {
         return Regex.Split(str, ",|;|\\s")

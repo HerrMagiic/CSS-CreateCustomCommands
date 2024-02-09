@@ -24,6 +24,12 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         this.Logger = Logger;
     }
 
+    /// <summary>
+    /// Replaces tags in the input array with their corresponding values.
+    /// </summary>
+    /// <param name="input">The array of strings containing tags to be replaced.</param>
+    /// <param name="player">The CCSPlayerController object used for tag replacement.</param>
+    /// <returns>The array of strings with tags replaced.</returns>
     public string[] ReplaceTags(string[] input, CCSPlayerController player)
     {
         string[] output = new string[input.Length];
@@ -38,6 +44,14 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         return output;
     }
 
+    /// <summary>
+    /// Replaces language tags in the input string with the corresponding localized value.
+    /// Language tags are defined within curly braces, e.g. "{LANG=LocalizerTag}".
+    /// If a language tag is found, it is replaced with the localized value from the CustomCommands plugin's Localizer.
+    /// If the localized value is not found, a default message is returned.
+    /// </summary>
+    /// <param name="input">The input string to process.</param>
+    /// <returns>The input string with language tags replaced with localized values.</returns>
     public string ReplaceLanguageTags(string input)
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
@@ -61,6 +75,14 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             return input;
         }
     }
+
+    /// <summary>
+    /// Replaces tags in the input string with corresponding values based on the provided player information.
+    /// </summary>
+    /// <param name="input">The input string containing tags to be replaced.</param>
+    /// <param name="player">The CCSPlayerController object representing the player.</param>
+    /// <param name="safety">A boolean value indicating whether to replace the {PLAYERNAME} tag. Default is true.</param>
+    /// <returns>The modified string with replaced tags.</returns>
     public string ReplaceMessageTags(string input, CCSPlayerController player, bool safety = true)
     {
         SteamID steamId = new SteamID(player.SteamID);
@@ -103,7 +125,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         {
             {"{DEFAULT}", $"{ChatColors.Default}"},
             {"{WHITE}", $"{ChatColors.White}"},
-            {"{DARKRED}", $"{ChatColors.Darkred}"},
+            {"{DARKRED}", $"{ChatColors.DarkRed}"},
             {"{RED}", $"{ChatColors.Red}"},
             {"{LIGHTRED}", $"{ChatColors.LightRed}"},
             {"{GREEN}", $"{ChatColors.Green}"},

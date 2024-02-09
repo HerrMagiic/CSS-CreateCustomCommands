@@ -18,6 +18,11 @@ public class MessageManager : IMessageManager
         this.PluginContext = (PluginContext as PluginContext)!;
     }
 
+    /// <summary>
+    /// Sends a message based on the specified command and target receiver.
+    /// </summary>
+    /// <param name="player">The player who triggered the command.</param>
+    /// <param name="cmd">The command containing the message and target receiver.</param>
     public void SendMessage(CCSPlayerController player, Commands cmd) 
     {
         switch (cmd.PrintTo)

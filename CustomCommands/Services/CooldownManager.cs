@@ -33,6 +33,13 @@ public class CooldownManager : ICooldownManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if a command is on cooldown based on a given condition.
+    /// </summary>
+    /// <param name="predicate">The condition to check for each cooldown timer.</param>
+    /// <param name="player">The player controller.</param>
+    /// <param name="cmd">The command.</param>
+    /// <returns>True if the command is on cooldown, false otherwise.</returns>
     public bool IsCommandOnCooldownWithCondition(Func<CooldownTimer, bool> predicate, CCSPlayerController player, Commands cmd)
     {
         int index = PluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
@@ -129,7 +136,6 @@ public class CooldownManager : ICooldownManager
 
                     var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                     AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
-                    
                     break;
 
                 default:
