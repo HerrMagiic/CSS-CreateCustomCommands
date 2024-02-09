@@ -1,8 +1,6 @@
 using System.Text.Json;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CustomCommands.Model;
-using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Interfaces;
 
