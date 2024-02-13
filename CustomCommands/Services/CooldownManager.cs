@@ -10,8 +10,8 @@ public class CooldownManager : ICooldownManager
     public IReplaceTagsFunctions ReplaceTagsFunctions { get; }
     public CooldownManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        this.PluginGlobals          = PluginGlobals;
+        this.ReplaceTagsFunctions   = ReplaceTagsFunctions;
     }
     
     /// <summary>
@@ -46,11 +46,10 @@ public class CooldownManager : ICooldownManager
 
         if (index != -1)
         {
-            double totalSeconds = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
-            int totalSecondsRounded = (int)Math.Round(totalSeconds);
-            string timeleft = totalSecondsRounded.ToString();
-
-            string message = "";
+            double totalSeconds         = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
+            int totalSecondsRounded     = (int)Math.Round(totalSeconds);
+            string timeleft             = totalSecondsRounded.ToString();
+            string message              = "";
             
             // This is ugly as fuck
             try

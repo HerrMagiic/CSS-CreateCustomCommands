@@ -14,9 +14,9 @@ public class EventManager : IEventManager
     
     public EventManager(IPluginGlobals PluginGlobals, IPluginContext PluginContext, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        this.PluginGlobals          = PluginGlobals;
+        this.PluginContext          = (PluginContext as PluginContext)!;
+        this.ReplaceTagsFunctions   = ReplaceTagsFunctions;
     }
 
     [GameEventHandler]

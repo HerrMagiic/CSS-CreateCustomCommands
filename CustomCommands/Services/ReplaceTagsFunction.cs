@@ -32,17 +32,22 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// <param name="input">The array of strings containing tags to be replaced.</param>
     /// <param name="player">The CCSPlayerController object used for tag replacement.</param>
     /// <returns>The array of strings with tags replaced.</returns>
-    public string[] ReplaceTags(string[] input, CCSPlayerController player)
+    public string[] ReplaceTags(dynamic input, CCSPlayerController player)
     {
-        string[] output = ReplaceLanguageTags(input);
+        List<string> output = WrappedLine(input);
 
-        for (int i = 0; i < input.Length; i++)
+        for (int i = 0; i < output.Count; i++)
+            output[i] = ReplaceLanguageTags(input[i]);
+
+        output = WrappedLine(output.ToArray());
+
+        for (int i = 0; i < output.Count; i++)
         {
             output[i] = ReplaceMessageTags(output[i], player, false);
             output[i] = ReplaceColorTags(output[i]);
         }
 
-        return output;
+        return output.ToArray<string>();
     }
 
     /// <summary>
@@ -53,40 +58,28 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// </summary>
     /// <param name="input">The input string to process.</param>
     /// <returns>The input string with language tags replaced with localized values.</returns>
-    public string[] ReplaceLanguageTags(string[] input)
+    public string ReplaceLanguageTags(string input)
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-        
-        List<string> output = new List<string>();
         
         // Define the regex pattern to find "{LANG=...}"
         string pattern = @"\{LANG=(.*?)\}";
 
-        for (int i = 0; i < input.Length; i++)
+        // Use Regex to find matches
+        Match match = Regex.Match(input, pattern);
+
+        // Check if a match is found
+        if (match.Success)
         {
-            // Use Regex to find matches
-            Match match = Regex.Match(input[i], pattern);
-
-            // Check if a match is found
-            if (match.Success)
-            {
-                // Return the group captured in the regex, which is the string after "="
-                string lang = match.Groups[1].Value;
-                string replacedLang = input[i].Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
-
-                // Check for \n in the replacedLang and split it into an array
-                string[] lines = WrappedLine(replacedLang);
-
-                output.AddRange(lines);
-            }
-            else
-            {
-                // Return the original string if no match is found
-                output.Add(input[i]);
-            }
+            // Return the group captured in the regex, which is the string after "="
+            string lang = match.Groups[1].Value;
+            return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
         }
-
-        return output.ToArray<string>();
+        else
+        {
+            // Return the original string if no match is found
+            return input;
+        }
     }
 
     /// <summary>
@@ -167,7 +160,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// </summary>
     /// <param name="input">This should be a string[] or a string</param>
     /// <returns>An array of strings representing the lines of the input.</returns>
-    public string[] WrappedLine(dynamic input)
+    public List<string> WrappedLine(dynamic input)
     {
         List<string> output = new List<string>();
 
@@ -177,8 +170,8 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {
                 case JsonValueKind.String:
                     string result = jsonElement.GetString()!;
-                    return result?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
-
+                    output.AddRange(result.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                    break;
                 case JsonValueKind.Array:
                     foreach (var arrayElement in jsonElement.EnumerateArray())
                     {
@@ -189,16 +182,15 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
 
                 default:
                     Logger.LogError($"{PluginGlobals.Config.LogPrefix} Message is not a string or array");
-                    return Array.Empty<string>();
+                    break;
             }
         }
         else
         {
             Logger.LogError($"{PluginGlobals.Config.LogPrefix} Invalid input type");
-            return Array.Empty<string>();
         }
 
-        return output.ToArray();
+        return output;
     }
 
     /// <summary>
