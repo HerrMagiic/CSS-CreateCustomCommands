@@ -34,11 +34,10 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// <returns>The array of strings with tags replaced.</returns>
     public string[] ReplaceTags(string[] input, CCSPlayerController player)
     {
-        string[] output = new string[input.Length];
+        string[] output = ReplaceLanguageTags(input);
 
         for (int i = 0; i < input.Length; i++)
         {
-            output[i] = ReplaceLanguageTags(input[i]);
             output[i] = ReplaceMessageTags(output[i], player, false);
             output[i] = ReplaceColorTags(output[i]);
         }
@@ -54,28 +53,40 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// </summary>
     /// <param name="input">The input string to process.</param>
     /// <returns>The input string with language tags replaced with localized values.</returns>
-    public string ReplaceLanguageTags(string input)
+    public string[] ReplaceLanguageTags(string[] input)
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-
+        
+        List<string> output = new List<string>();
+        
         // Define the regex pattern to find "{LANG=...}"
         string pattern = @"\{LANG=(.*?)\}";
 
-        // Use Regex to find matches
-        Match match = Regex.Match(input, pattern);
+        for (int i = 0; i < input.Length; i++)
+        {
+            // Use Regex to find matches
+            Match match = Regex.Match(input[i], pattern);
 
-        // Check if a match is found
-        if (match.Success)
-        {
-            // Return the group captured in the regex, which is the string after "="
-            string lang = match.Groups[1].Value;
-            return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
+            // Check if a match is found
+            if (match.Success)
+            {
+                // Return the group captured in the regex, which is the string after "="
+                string lang = match.Groups[1].Value;
+                string replacedLang = input[i].Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
+
+                // Check for \n in the replacedLang and split it into an array
+                string[] lines = WrappedLine(replacedLang);
+
+                output.AddRange(lines);
+            }
+            else
+            {
+                // Return the original string if no match is found
+                output.Add(input[i]);
+            }
         }
-        else
-        {
-            // Return the original string if no match is found
-            return input;
-        }
+
+        return output.ToArray<string>();
     }
 
     /// <summary>
