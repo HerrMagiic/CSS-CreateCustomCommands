@@ -24,6 +24,8 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         this.Logger = Logger;
     }
 
+    
+
     /// <summary>
     /// Replaces tags in the input array with their corresponding values.
     /// </summary>

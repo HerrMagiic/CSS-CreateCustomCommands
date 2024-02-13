@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CounterStrikeSharp.API.Core.Plugin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ public class RegisterCommands : IRegisterCommands
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
         
-        string[] aliases = PluginUtilities.SplitStringByCommaOrSemicolon(com.Command);
+        string[] aliases = PluginUtilities.GettingCommandsFromString(com.Command);
 
         for (int i = 0; i < aliases.Length; i++)
         {

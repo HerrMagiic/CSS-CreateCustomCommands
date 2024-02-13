@@ -22,6 +22,26 @@ public class PluginUtilities : IPluginUtilities
         this.ReplaceTagsFunctions = ReplaceTagsFunctions;
         this.Logger = Logger;
     }
+    public string[] GettingCommandsFromString(string commands)
+    {
+        string[] splitCommands = SplitStringByCommaOrSemicolon(commands);
+        return AddCSSTagsToAliases(splitCommands);
+    }
+    /// <summary>
+    /// Adds the css_ prefix to each alias.
+    /// This will help cs# tell this command belongs to the framework.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public string[] AddCSSTagsToAliases(string[] input)
+    {
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (!input[i].StartsWith("css_"))
+                input[i] = "css_" + input[i];
+        }
+        return input;
+    }
 
     /// <summary>
     /// Splits a string by comma, semicolon, or whitespace characters.
