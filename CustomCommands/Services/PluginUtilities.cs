@@ -22,11 +22,17 @@ public class PluginUtilities : IPluginUtilities
         this.ReplaceTagsFunctions = ReplaceTagsFunctions;
         this.Logger = Logger;
     }
+
     public string[] GettingCommandsFromString(string commands)
     {
         string[] splitCommands = SplitStringByCommaOrSemicolon(commands);
-        return AddCSSTagsToAliases(splitCommands);
+
+        if (PluginGlobals.Config.RegisterCommandsAsCSSFramework)
+            return AddCSSTagsToAliases(splitCommands);
+
+        return splitCommands;
     }
+
     /// <summary>
     /// Adds the css_ prefix to each alias.
     /// This will help cs# tell this command belongs to the framework.
