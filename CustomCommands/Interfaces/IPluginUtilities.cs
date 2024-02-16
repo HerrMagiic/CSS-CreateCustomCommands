@@ -5,6 +5,8 @@ namespace CustomCommands.Interfaces;
 
 public interface IPluginUtilities
 {
+    string[] GettingCommandsFromString(string commands);
+    string[] AddCSSTagsToAliases(string[] input);
     /// <summary>
     /// Splits a string by comma, semicolon, or whitespace characters.
     /// </summary>

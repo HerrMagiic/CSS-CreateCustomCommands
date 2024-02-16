@@ -1,5 +1,5 @@
-using System.Text.Json;
 using CounterStrikeSharp.API.Core.Plugin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
@@ -29,20 +29,28 @@ public class RegisterCommands : IRegisterCommands
     /// <summary>
     /// Adds custom commands to the plugin.
     /// </summary>
-    /// <param name="com">The command to add.</param>
-    public void AddCommands(Commands com)
+    /// <param name="cmd">The command to add.</param>
+    public void AddCommands(Commands cmd)
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
         
-        string[] aliases = PluginUtilities.SplitStringByCommaOrSemicolon(com.Command);
+        string[] aliases = PluginUtilities.GettingCommandsFromString(cmd.Command);
 
         for (int i = 0; i < aliases.Length; i++)
         {
-            plugin.AddCommand(aliases[i], com.Description, (player, info) =>
+            plugin.AddCommand(aliases[i], cmd.Description, 
+                [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+                (player, info) =>
             {
-                if (player == null) return;
-                
-                var command = com;
+                if (player == null) 
+                    return;
+                if (info.ArgCount < aliases[i].Split(' ').Length)
+                {
+                    player.PrintToChat($"This command requires at least {aliases[i].Split(' ').Length-1} arguments.");
+                    return;
+                }
+                    
+                var command = cmd;
 
                 // Check if the command has arguments and if it does, check if the command really exists in the list
                 if (info.ArgCount > 1)
@@ -54,9 +62,6 @@ public class RegisterCommands : IRegisterCommands
 
                     command = findcommand;
                 }
-                // Check if the command has arguments and check if the player uses the command with the alias
-                if (command!.Command.Contains(aliases[i] + " ") && info.ArgCount <= 1) 
-                    return;
 
                 // Check if the player has the permission to use the command
                 if (command!.Permission.PermissionList.Count > 0 && command.Permission != null)
@@ -95,15 +100,15 @@ public class RegisterCommands : IRegisterCommands
         List<Commands> commands = new();
         List<string> commandNames = new();
 
-        foreach (var com in comms)
+        foreach (var cmd in comms)
         {
-            string[] aliases = com.Command.Split(',');
+            string[] aliases = cmd.Command.Split(',');
 
             foreach (var alias in aliases)
             {
                 if (commandNames.Contains(alias.ToLower()))
                 {
-                    duplicateCommands.Add(com);
+                    duplicateCommands.Add(cmd);
                     continue;
                 }
                 commandNames.Add(alias.ToLower());

@@ -23,6 +23,37 @@ public class PluginUtilities : IPluginUtilities
         this.Logger = Logger;
     }
 
+    public string[] GettingCommandsFromString(string commands)
+    {
+        string[] splitCommands = SplitStringByCommaOrSemicolon(commands);
+
+        if (PluginGlobals.Config.RegisterCommandsAsCSSFramework)
+            return AddCSSTagsToAliases(splitCommands);
+
+        return splitCommands;
+    }
+
+    /// <summary>
+    /// Adds the css_ prefix to each alias.
+    /// This will help cs# tell this command belongs to the framework.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public string[] AddCSSTagsToAliases(string[] input)
+    {
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (!input[i].StartsWith("css_"))
+                input[i] = "css_" + input[i];
+        }
+        return input;
+    }
+
+    /// <summary>
+    /// Splits a string by comma, semicolon, or whitespace characters.
+    /// </summary>
+    /// <param name="str">The string to be split.</param>
+    /// <returns>An array of strings containing the split substrings.</returns>
     public string[] SplitStringByCommaOrSemicolon(string str)
     {
         return Regex.Split(str, ",|;|\\s")

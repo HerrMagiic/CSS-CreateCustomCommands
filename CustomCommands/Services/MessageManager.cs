@@ -60,9 +60,8 @@ public class MessageManager : IMessageManager
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
         
-
-        string message = ReplaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
-        message = ReplaceTagsFunctions.ReplaceMessageTags(message, player);
+        string message  = ReplaceTagsFunctions.ReplaceLanguageTags(cmd.Message);
+        message         = ReplaceTagsFunctions.ReplaceMessageTags(message, player);
 
         var CenterClientElement = new CenterClientElement
         {
@@ -77,8 +76,8 @@ public class MessageManager : IMessageManager
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
 
-        PluginGlobals.centerServerOn.Message = cmd.CenterMessage.Message;
-        PluginGlobals.centerServerOn.IsRunning = true;
+        PluginGlobals.centerServerOn.Message    = cmd.CenterMessage.Message;
+        PluginGlobals.centerServerOn.IsRunning  = true;
         
         plugin.AddTimer(cmd.CenterMessage.Time, () =>
         {
@@ -100,8 +99,7 @@ public class MessageManager : IMessageManager
     
     public void PrintToChat(Receiver printToChat, CCSPlayerController player, dynamic message)
     {
-        string[] msg = ReplaceTagsFunctions.WrappedLine(message);
-        msg = ReplaceTagsFunctions.ReplaceTags(msg, player);
+        string[] msg = ReplaceTagsFunctions.ReplaceTags(message, player);
 
         switch (printToChat)
         {
