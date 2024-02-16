@@ -1,3 +1,14 @@
+## Execute Server Commands
+
+If you want to execute server commands with you command this is the way of doing it. 
+
+
+### Important!
+
+Its always recommended to Permission to the command so not every player can use the command and execute commands on your server
+
+
+```json
 [
     {
         "Title": "Restart",
@@ -31,7 +42,7 @@
             "cl_ragdoll_gravity 0",
             "sv_accelerate 10",
             "sv_airaccelerate 1400",
-            "sv_gravity 800.0" 
+            "sv_gravity 800.0"
         ],
         "Permission": {
             "RequiresPermissionOr": true,
@@ -45,10 +56,11 @@
         "Title": "Kickme",
         "Description": "command that kicks yourself",
         "Command": "kickme",
-        "Message": "Getting Kicket",
+        "Message": "Getting Kicked",
         "PrintTo": 0,
         "ServerCommands": [
-            "kick {PLAYERNAME}" // Tags work for commands as well
+            "kick {USERID}" // Tags work for commands as well
         ]
     }
 ]
+```

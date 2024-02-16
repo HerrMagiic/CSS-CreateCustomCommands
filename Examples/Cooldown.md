@@ -1,3 +1,13 @@
+## Cooldown for commands
+
+Here are two ways to add a cooldown for a command.
+
+The simple command is just a cooldown for the current player who used the command
+
+In the Advanced command example you can add a "IsGlobal" flag so the whole server has a cooldown for this command not just the Player who uses it
+
+
+```json
 [
     //Simple cooldown command
     {
@@ -22,3 +32,4 @@
         "PrintTo": 0
     }
 ]
+```

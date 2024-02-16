@@ -1,3 +1,12 @@
+## Permissions
+
+Adding Permission check who can execute the command.
+
+This is just like adding Permissions for player just for the command
+
+[How it works:](https://docs.cssharp.dev/docs/admin-framework/defining-admins.html)
+
+```json
 [
     {
         "Title": "Ping",
@@ -15,3 +24,4 @@
         }
     }
 ]
+```

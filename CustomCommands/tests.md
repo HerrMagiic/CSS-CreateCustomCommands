@@ -7,3 +7,5 @@
 * [ ] check if newline in language files works
 * [ ] check if arguments still work
   * [ ] check if argument message appears when not giving enough arguments
+* [ ] Test Client commands
+* [ ] Test ClientServer Commands

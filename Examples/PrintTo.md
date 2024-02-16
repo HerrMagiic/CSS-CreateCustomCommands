@@ -1,9 +1,24 @@
+## Print To / Decide where the message gets displayed
+
+Here are all combinations listed where you can print the message.
+
+The default values are
+
+0 - Client Chat = Only the player who executed the command gets the message
+
+1 - All Chat = The whole server gets the message when a player executes the command
+
+2 - Client Center = The player who executed the command gets a message in the center
+
+3 - All Center = The whole server gets the message to the center when a player executes the command
+
+```json
 [
     {
         "Title": "Client Chat",
         "Description": "Client Chat message",
         "Command": "clientchat",
-        "Message": "ClientChat", 
+        "Message": "ClientChat",
         "PrintTo": 0
     },
     {
@@ -78,3 +93,4 @@
         "PrintTo": 7
     }
 ]
+```

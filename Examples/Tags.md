@@ -1,3 +1,11 @@
+## Tags for Dynamic Command
+
+Here is a list of tags you can add to the message. Its also possible to use some tags with the combination of Executing commands.
+
+The tags are always in {TAG} 
+
+
+```
 [
     {
         "Title": "Prefix",
@@ -84,3 +92,4 @@
         "PrintTo": 0
     }
 ]
+```
