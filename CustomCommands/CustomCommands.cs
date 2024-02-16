@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomCommands;
 
-[MinimumApiVersion(142)]
+[MinimumApiVersion(167)]
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";

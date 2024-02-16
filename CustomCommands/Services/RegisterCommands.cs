@@ -74,6 +74,12 @@ public class RegisterCommands : IRegisterCommands
 
                 // Execute the server commands
                 PluginUtilities.ExecuteServerCommands(command, player);
+
+                // Execute the client commands
+                PluginUtilities.ExecuteClientCommands(command, player);
+
+                // Execute the client commands from the server
+                PluginUtilities.ExecuteClientCommandsFromServer(command, player);
             });
         }
     }

@@ -14,7 +14,7 @@ public class PluginUtilities : IPluginUtilities
     private readonly IPluginGlobals PluginGlobals;
     private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
     private readonly ILogger<CustomCommands> Logger;
-    
+
     public PluginUtilities(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions,
                             ILogger<CustomCommands> Logger)
     {
@@ -23,23 +23,14 @@ public class PluginUtilities : IPluginUtilities
         this.Logger = Logger;
     }
 
-    /// <summary>
-    /// Splits a string by comma, semicolon, or whitespace characters.
-    /// </summary>
-    /// <param name="str">The string to be split.</param>
-    /// <returns>An array of strings containing the split substrings.</returns>
     public string[] SplitStringByCommaOrSemicolon(string str)
     {
         return Regex.Split(str, ",|;|\\s")
                         .Where(s => !string.IsNullOrEmpty(s))
                         .ToArray();
     }
-    /// <summary>
-    /// Executes the server commands from the command object
-    /// </summary>
-    /// <param name="cmd"></param>
-    /// <param name="player"></param>
-    public void ExecuteServerCommands(Commands cmd, CCSPlayerController player) 
+    
+    public void ExecuteServerCommands(Commands cmd, CCSPlayerController player)
     {
         if (cmd.ServerCommands.Count == 0) return;
 
@@ -55,6 +46,26 @@ public class PluginUtilities : IPluginUtilities
             Server.ExecuteCommand(ReplaceTagsFunctions.ReplaceMessageTags(serverCommand, player));
         }
     }
+    
+    public void ExecuteClientCommands(Commands cmd, CCSPlayerController player)
+    {
+        if (cmd.ClientCommands.Count == 0) return;
+
+        foreach (var clientCommand in cmd.ClientCommands)
+        {
+            player.ExecuteClientCommand(ReplaceTagsFunctions.ReplaceMessageTags(clientCommand, player));
+        }
+    }
+    
+    public void ExecuteClientCommandsFromServer(Commands cmd, CCSPlayerController player)
+    {
+        if (cmd.ClientCommandsFromServer.Count == 0) return;
+
+        foreach (var clientCommandsFromServer in cmd.ClientCommandsFromServer)
+        {
+            player.ExecuteClientCommandFromServer(ReplaceTagsFunctions.ReplaceMessageTags(clientCommandsFromServer, player));
+        }
+    }
     /// <summary>
     /// Handles the toggle command
     /// </summary>
@@ -65,7 +76,7 @@ public class PluginUtilities : IPluginUtilities
         var commandCvar = ConVar.Find(commandWithoutToggle);
         if (commandCvar != null)
         {
-            if(commandCvar.GetPrimitiveValue<bool>())
+            if (commandCvar.GetPrimitiveValue<bool>())
                 Server.ExecuteCommand($"{commandWithoutToggle} 0");
             else
                 Server.ExecuteCommand($"{commandWithoutToggle} 1");
@@ -75,19 +86,14 @@ public class PluginUtilities : IPluginUtilities
             Logger.LogError($"Couldn't toggle {commandWithoutToggle}. Please check if this command is toggleable");
         }
     }
-    /// <summary>
-    /// Checks if the player has the required permissions to execute the command
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="permissions"></param>
-    /// <returns></returns>
+    
     public bool RequiresPermissions(CCSPlayerController player, Permission permissions)
     {
         if (!permissions.RequiresAllPermissions)
         {
             foreach (var permission in permissions.PermissionList)
             {
-                if (AdminManager.PlayerHasPermissions(player, new string[]{permission})) 
+                if (AdminManager.PlayerHasPermissions(player, new string[] { permission }))
                     return true;
             }
             player.PrintToChat($"{PluginGlobals.Config.Prefix}You don't have the required permissions to execute this command");
