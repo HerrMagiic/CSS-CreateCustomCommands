@@ -59,7 +59,7 @@ Its always recommended to Permission to the command so not every player can use 
         "Message": "Getting Kicked",
         "PrintTo": 0,
         "ServerCommands": [
-            "kick {USERID}" // Tags work for commands as well
+            "css_kick #{USERID}" // Tags work for commands as well. This command works with Simple Admin
         ]
     }
 ]
