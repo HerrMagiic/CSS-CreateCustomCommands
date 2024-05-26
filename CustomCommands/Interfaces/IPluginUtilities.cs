@@ -18,7 +18,7 @@ public interface IPluginUtilities
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    string[] AddCSSTagsToAliases(string[] input);
+    string[] AddCSSTagsToAliases(List<string> input);
 
     /// <summary>
     /// Splits a string by comma, semicolon, or whitespace characters.

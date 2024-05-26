@@ -39,12 +39,14 @@ public class RegisterCommands : IRegisterCommands
         for (int i = 0; i < aliases.Length; i++)
         {
             string alias = aliases[i];
+            // System.Console.WriteLine($"Pre Command: {alias}.");
             plugin.AddCommand(alias, cmd.Description, 
                 [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
                 (player, info) =>
             {
                 if (player == null) 
                     return;
+                System.Console.WriteLine($"Post Command: {alias}.");
 
                 if (info.ArgCount < alias.Split(' ').Length)
                 {
