@@ -26,7 +26,7 @@ In the Advanced command example you can add a "IsGlobal" flag so the whole serve
         "Cooldown": {
             "CooldownTime": 5, // required, Cooldown in seconds
             "IsGlobal": false, // If true, cooldown will be global for all users
-            "CooldownMessage": "This command is on cooldown for {TIME} more seconds!"
+            "CooldownMessage": "This command is on cooldown for {TIMELEFT} more seconds!"
         },
         "Message": "Cool cooldown message!",
         "PrintTo": 0
