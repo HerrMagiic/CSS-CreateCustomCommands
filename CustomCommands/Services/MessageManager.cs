@@ -60,7 +60,7 @@ public class MessageManager : IMessageManager
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
         
-        string message  = ReplaceTagsFunctions.ReplaceLanguageTags(cmd.Message);
+        string message  = ReplaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
         message         = ReplaceTagsFunctions.ReplaceMessageTags(message, player);
 
         var CenterClientElement = new CenterClientElement
