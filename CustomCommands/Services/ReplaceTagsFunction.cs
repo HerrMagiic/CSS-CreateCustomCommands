@@ -37,7 +37,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         List<string> output = WrappedLine(input);
 
         for (int i = 0; i < output.Count; i++)
-            output[i] = ReplaceLanguageTags(input[i]);
+            output[i] = ReplaceLanguageTags(output[i]);
 
         output = WrappedLine(output.ToArray());
 
@@ -183,6 +183,13 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
                 default:
                     Logger.LogError($"{PluginGlobals.Config.LogPrefix} Message is not a string or array");
                     break;
+            }
+        } else if (input is Array inputArray)
+        {
+            foreach (string arrayElement in inputArray)
+            {
+                string[] lines = arrayElement.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                output.AddRange(lines);
             }
         }
         else

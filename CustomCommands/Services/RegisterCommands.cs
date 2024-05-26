@@ -38,15 +38,17 @@ public class RegisterCommands : IRegisterCommands
 
         for (int i = 0; i < aliases.Length; i++)
         {
-            plugin.AddCommand(aliases[i], cmd.Description, 
+            string alias = aliases[i];
+            plugin.AddCommand(alias, cmd.Description, 
                 [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
                 (player, info) =>
             {
                 if (player == null) 
                     return;
-                if (info.ArgCount < aliases[i].Split(' ').Length)
+
+                if (info.ArgCount < alias.Split(' ').Length)
                 {
-                    player.PrintToChat($"This command requires at least {aliases[i].Split(' ').Length-1} arguments.");
+                    player.PrintToChat($"This command requires at least {alias.Split(' ').Length-1} arguments.");
                     return;
                 }
                     
@@ -55,7 +57,7 @@ public class RegisterCommands : IRegisterCommands
                 // Check if the command has arguments and if it does, check if the command really exists in the list
                 if (info.ArgCount > 1)
                 {
-                    var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(aliases[i] + $" {info.ArgString}"));
+                    var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(alias + $" {info.ArgString}"));
                     // Check if the command is equal to the found command
                     if (findcommand! != command)
                         return;
