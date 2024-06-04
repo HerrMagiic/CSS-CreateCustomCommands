@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
@@ -48,7 +49,11 @@ public class LoadJson : ILoadJson
 
         foreach (var file in files)
         {
-            var json = File.ReadAllText(file);
+            string json;
+
+            // Read Unicode Characters
+            using (StreamReader sr = new StreamReader(file, Encoding.UTF8))
+                json = sr.ReadToEnd();
 
             // Validate the JSON file
             if (!IsValidJsonSyntax(file))

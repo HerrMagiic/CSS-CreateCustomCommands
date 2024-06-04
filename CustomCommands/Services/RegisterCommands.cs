@@ -44,6 +44,7 @@ public class RegisterCommands : IRegisterCommands
             {
                 if (player == null) 
                     return;
+                    
                 if (info.ArgCount < aliases[i].Split(' ').Length)
                 {
                     player.PrintToChat($"This command requires at least {aliases[i].Split(' ').Length-1} arguments.");
