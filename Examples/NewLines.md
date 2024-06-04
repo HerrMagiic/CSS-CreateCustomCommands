@@ -1,3 +1,9 @@
+## New Lines
+
+Here are two ways of breaking the message into two or more lines.
+
+
+```json
 [
     {
         "Title": "Steam group",
@@ -32,3 +38,4 @@
         "PrintTo": 0
     }
 ]
+```

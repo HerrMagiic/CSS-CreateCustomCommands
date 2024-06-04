@@ -10,8 +10,8 @@ public class CooldownManager : ICooldownManager
     public IReplaceTagsFunctions ReplaceTagsFunctions { get; }
     public CooldownManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        this.PluginGlobals          = PluginGlobals;
+        this.ReplaceTagsFunctions   = ReplaceTagsFunctions;
     }
     
     /// <summary>
@@ -33,17 +33,23 @@ public class CooldownManager : ICooldownManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if a command is on cooldown based on a given condition.
+    /// </summary>
+    /// <param name="predicate">The condition to check for each cooldown timer.</param>
+    /// <param name="player">The player controller.</param>
+    /// <param name="cmd">The command.</param>
+    /// <returns>True if the command is on cooldown, false otherwise.</returns>
     public bool IsCommandOnCooldownWithCondition(Func<CooldownTimer, bool> predicate, CCSPlayerController player, Commands cmd)
     {
         int index = PluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
 
         if (index != -1)
         {
-            double totalSeconds = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
-            int totalSecondsRounded = (int)Math.Round(totalSeconds);
-            string timeleft = totalSecondsRounded.ToString();
-
-            string message = "";
+            double totalSeconds         = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
+            int totalSecondsRounded     = (int)Math.Round(totalSeconds);
+            string timeleft             = totalSecondsRounded.ToString();
+            string message              = "";
             
             // This is ugly as fuck
             try
@@ -129,7 +135,6 @@ public class CooldownManager : ICooldownManager
 
                     var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                     AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
-                    
                     break;
 
                 default:

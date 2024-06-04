@@ -14,9 +14,9 @@ public class EventManager : IEventManager
     
     public EventManager(IPluginGlobals PluginGlobals, IPluginContext PluginContext, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        this.PluginGlobals          = PluginGlobals;
+        this.PluginContext          = (PluginContext as PluginContext)!;
+        this.ReplaceTagsFunctions   = ReplaceTagsFunctions;
     }
 
     [GameEventHandler]
@@ -32,6 +32,7 @@ public class EventManager : IEventManager
     {
         CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
 
+        // Register the OnTick event for PrintToCenterHtml duration
         plugin.RegisterListener<Listeners.OnTick>(() =>
         {
             // Client Print To Center

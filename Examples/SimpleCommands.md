@@ -1,3 +1,9 @@
+## Simple Commands
+
+Here are some examples for very simple commands
+
+
+```json
 [
     {
         "Title": "Ping",
@@ -14,3 +20,4 @@
         "PrintTo": 0
     }
 ]
+```

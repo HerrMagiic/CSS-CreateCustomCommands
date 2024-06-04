@@ -1,3 +1,11 @@
+## Multiple Aliases for one Command
+
+Here is a way of creating aliases for a command.
+
+For example there are many ways a user would try to get the discord link. Using a "," or ";" solve the issue
+
+
+```json
 [
     {
         "Title": "Discord",
@@ -7,3 +15,4 @@
         "PrintTo": 0
     }
 ]
+```
