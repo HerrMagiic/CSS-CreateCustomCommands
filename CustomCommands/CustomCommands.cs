@@ -9,7 +9,7 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "2.1.0";
+    public override string ModuleVersion => "2.2.0";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
