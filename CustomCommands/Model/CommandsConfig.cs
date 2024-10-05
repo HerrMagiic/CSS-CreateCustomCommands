@@ -1,8 +1,9 @@
 ﻿namespace CustomCommands.Model;
 
-public class Commands
+public class Commands :  ICloneable
 {
     public Guid ID { get; set; } = Guid.NewGuid();
+    public string? Argument { get; set; }
     public string Title { get; set; } = "";
     public string Description { get; set; } = "Description";
     public string Command { get; set; } = "";
@@ -13,7 +14,27 @@ public class Commands
     public List<string> ServerCommands { get; set; } = new();
     public List<string> ClientCommands { get; set; } = new();
     public List<string> ClientCommandsFromServer { get; set; } = new();
-    public Permission Permission { get; set; } = new();
+    public Permission? Permission { get; set; } = new();
+
+    public object Clone()
+    {
+        return new Commands() 
+        {
+            ID = ID,
+            Argument = Argument,
+            Title = Title,
+            Description = Description,
+            Command = Command,
+            Cooldown = Cooldown,
+            Message = Message,
+            CenterMessage = CenterMessage,
+            PrintTo = PrintTo,
+            ServerCommands = new List<string>(ServerCommands),
+            ClientCommands = new List<string>(ClientCommands),
+            ClientCommandsFromServer = new List<string>(ClientCommandsFromServer),
+            Permission = Permission?.Clone() as Permission
+        };
+    }
 }
 public class Cooldown
 {
@@ -21,10 +42,16 @@ public class Cooldown
     public bool IsGlobal { get; set; } = false;
     public string CooldownMessage { get; set; } = "";
 }
-public class Permission
+public class Permission :  ICloneable
 {
     public bool RequiresAllPermissions { get; set; } = false;
     public List<string> PermissionList { get; set; } = new();
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
+
 }
 public class CenterElement
 {

@@ -61,9 +61,10 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
         {
             PluginGlobals.CustomCommands = comms;
 
-            comms = RegisterCommands.CheckForDuplicateCommands(comms);
+            PluginGlobals.CustomCommands = RegisterCommands.CheckForDuplicateCommands(comms);
+
             // Add commands from the JSON file to the server
-            foreach (var cmd in comms)
+            foreach (var cmd in PluginGlobals.CustomCommands)
                 RegisterCommands.AddCommands(cmd);
         }
     }

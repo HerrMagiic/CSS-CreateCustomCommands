@@ -42,19 +42,19 @@ public class CooldownManager : ICooldownManager
     /// <returns>True if the command is on cooldown, false otherwise.</returns>
     public bool IsCommandOnCooldownWithCondition(Func<CooldownTimer, bool> predicate, CCSPlayerController player, Commands cmd)
     {
-        int index = PluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
+        var index = PluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
 
         if (index != -1)
         {
-            double totalSeconds         = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
-            int totalSecondsRounded     = (int)Math.Round(totalSeconds);
-            string timeleft             = totalSecondsRounded.ToString();
-            string message              = "";
+            var totalSeconds         = (double)PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
+            var totalSecondsRounded     = (int)Math.Round(totalSeconds);
+            var timeleft             = totalSecondsRounded.ToString();
+            var message              = "";
             
             // This is ugly as fuck
             try
             {
-                Cooldown cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
+                var cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                 Console.WriteLine(cooldown.CooldownMessage);
                 string[] replaceTimeleft = {cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft)};
                 message = ReplaceTagsFunctions.ReplaceTags(replaceTimeleft, player)[0];
