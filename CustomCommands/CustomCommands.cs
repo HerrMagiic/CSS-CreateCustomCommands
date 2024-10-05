@@ -2,6 +2,7 @@
 using CounterStrikeSharp.API.Core.Attributes;
 using CustomCommands.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace CustomCommands;
 
@@ -61,7 +62,8 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
         {
             PluginGlobals.CustomCommands = comms;
 
-            PluginGlobals.CustomCommands = RegisterCommands.CheckForDuplicateCommands(comms);
+            RegisterCommands.CheckForDuplicateCommands();
+            RegisterCommands.ConvertingCommandsForRegister();
 
             // Add commands from the JSON file to the server
             foreach (var cmd in PluginGlobals.CustomCommands)

@@ -22,54 +22,7 @@ public class PluginUtilities : IPluginUtilities
         this.ReplaceTagsFunctions = ReplaceTagsFunctions;
         this.Logger = Logger;
     }
-
-    public string[] GettingCommandsFromString(string commands)
-    {
-        string[] splitCommands = SplitStringByCommaOrSemicolon(commands);
-        List<string> commandsList = new List<string>();
-        // Removes arguments from the command when spaces are present
-        for (int i = 0; i < splitCommands.Length; i++)
-        {
-            if (splitCommands[i].Contains(' '))
-            {
-                Logger.LogInformation($"Contains space!");
-                if (splitCommands[i].IndexOf(' ') == 0)
-                {
-                    commandsList.Add(splitCommands[i]);
-                    continue;
-                }
-                Logger.LogInformation($"Is multiple args");
-                string sub = splitCommands[i].Substring(0, splitCommands[i].IndexOf(' '));
-                Logger.LogInformation($"Sub: {sub}");
-                if (commandsList.Contains(sub))
-                {
-                    Logger.LogInformation("In IF");
-                    continue;
-                }
-                
-                if (!contains)
-                    commandsList.Add(sub);
-            }
-            else
-            {
-                if (!commandsList.Contains(splitCommands[i]))
-                    commandsList.Add(splitCommands[i]);
-            }
-        }
-
-
-        foreach (var command in commandsList)
-        {
-            Logger.LogInformation($"Command: {command}");
-        }
-
-        if (PluginGlobals.Config.RegisterCommandsAsCSSFramework)
-            return AddCSSTagsToAliases(commandsList);
-
-        
-        return commandsList.ToArray();
-    }
-
+    
     public string[] AddCSSTagsToAliases(List<string> input)
     {
         for (int i = 0; i < input.Count; i++)

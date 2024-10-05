@@ -15,6 +15,7 @@ public class Commands :  ICloneable
     public List<string> ClientCommands { get; set; } = new();
     public List<string> ClientCommandsFromServer { get; set; } = new();
     public Permission? Permission { get; set; } = new();
+    public bool IsRegisterable { get; set; } = true;
 
     public object Clone()
     {
@@ -32,7 +33,8 @@ public class Commands :  ICloneable
             ServerCommands = new List<string>(ServerCommands),
             ClientCommands = new List<string>(ClientCommands),
             ClientCommandsFromServer = new List<string>(ClientCommandsFromServer),
-            Permission = Permission?.Clone() as Permission
+            Permission = Permission?.Clone() as Permission,
+            IsRegisterable = IsRegisterable
         };
     }
 }

@@ -6,13 +6,6 @@ namespace CustomCommands.Interfaces;
 public interface IPluginUtilities
 {
     /// <summary>
-    /// Splits the commands string into an array of strings.
-    /// </summary>
-    /// <param name="commands"></param>
-    /// <returns></returns>
-    string[] GettingCommandsFromString(string commands);
-
-    /// <summary>
     /// Adds the css_ prefix to each alias.
     /// This will help cs# tell this command belongs to the framework.
     /// </summary>

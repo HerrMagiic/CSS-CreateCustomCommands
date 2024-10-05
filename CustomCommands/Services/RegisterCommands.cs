@@ -26,83 +26,79 @@ public class RegisterCommands : IRegisterCommands
         this.CooldownManager = CooldownManager;
     }
 
-    /// <summary>
-    /// Adds custom commands to the plugin.
-    /// </summary>
-    /// <param name="cmd">The command to add.</param>
     public void AddCommands(Commands cmd)
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-        
-        string[] aliases = PluginUtilities.GettingCommandsFromString(cmd.Command);
+        if (!cmd.IsRegisterable)
+            return;
 
-        for (int i = 0; i < aliases.Length; i++)
+        var pluginContext = (PluginContext.Plugin as CustomCommands)!;
+
+        pluginContext.AddCommand(cmd.Command, cmd.Description, 
+            [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+            (player, info) =>
         {
-            string alias = aliases[i];
-            // System.Console.WriteLine($"Pre Command: {alias}.");
-            plugin.AddCommand(alias, cmd.Description, 
-                [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-                (player, info) =>
+            if (player == null) 
+                return;
+
+            var command = cmd;
+
+            // Check if the command has arguments and if it does, check if the command exists and is the right one
+            if (info.ArgCount > 1)
             {
-                if (player == null) 
-                    return;
-                System.Console.WriteLine($"Post Command: {alias}.");
-
-                if (info.ArgCount < alias.Split(' ').Length)
+                var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command == command.Command && x.Argument == info.ArgString);
+                // Check if the command is the right one with the right arguments
+                if (findcommand is null) 
                 {
-                    player.PrintToChat($"This command requires at least {alias.Split(' ').Length-1} arguments.");
+                    player.PrintToChat("This command requires no Arguments or you added to many");
                     return;
                 }
-                    
-                var command = cmd;
-
-                // Check if the command has arguments and if it does, check if the command really exists in the list
-                if (info.ArgCount > 1)
+                
+                if (!findcommand.Argument!.Equals(info.ArgString)) 
                 {
-                    var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(alias + $" {info.ArgString}"));
-                    // Check if the command is equal to the found command
-                    if (findcommand! != command)
-                        return;
-
-                    command = findcommand;
+                    player.PrintToChat("Wrong Arguments");
+                    return;
                 }
 
-                // Check if the player has the permission to use the command
-                if (command!.Permission.PermissionList.Count > 0 && command.Permission != null)
-                    if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
-                        return;
+                command = findcommand;
+            }
+
+            // This will exit the command if the command has arguments but the client didn't provide any
+            if (info.ArgCount <= 1 && !string.IsNullOrEmpty(command.Argument!)) 
+            {
+                player.PrintToChat("This command requires Arguments");
+                return;
+            }
             
-                // Check if the command is on cooldown
-                if(CooldownManager.IsCommandOnCooldown(player, command)) return;
+            // Check if the player has the permission to use the command
+            if (command!.Permission?.PermissionList.Count > 0 && command.Permission != null)
+                if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
+                    return;
+        
+            // Check if the command is on cooldown
+            if(CooldownManager.IsCommandOnCooldown(player, command)) return;
 
-                // Set the cooldown for the command if it has a cooldown set
-                CooldownManager.SetCooldown(player, command);
+            // Set the cooldown for the command if it has a cooldown set
+            CooldownManager.SetCooldown(player, command);
 
-                // Sending the message to the player
-                MessageManager.SendMessage(player, command);
+            // Sending the message to the player
+            MessageManager.SendMessage(player, command);
 
-                // Execute the server commands
-                PluginUtilities.ExecuteServerCommands(command, player);
+            // Execute the server commands
+            PluginUtilities.ExecuteServerCommands(command, player);
 
-                // Execute the client commands
-                PluginUtilities.ExecuteClientCommands(command, player);
+            // Execute the client commands
+            PluginUtilities.ExecuteClientCommands(command, player);
 
-                // Execute the client commands from the server
-                PluginUtilities.ExecuteClientCommandsFromServer(command, player);
-            });
-        }
+            // Execute the client commands from the server
+            PluginUtilities.ExecuteClientCommandsFromServer(command, player);
+        });
     }
 
-    /// <summary>
-    /// Checks for duplicate commands in the provided list and removes them.
-    /// </summary>
-    /// <param name="comms">The list of commands to check for duplicates.</param>
-    /// <returns>A new list of commands without any duplicates.</returns>
-    public List<Commands> CheckForDuplicateCommands(List<Commands> comms)
+    public void CheckForDuplicateCommands()
     {
-        List<Commands> duplicateCommands = new();
-        List<Commands> commands = new();
-        List<string> commandNames = new();
+        var comms = PluginGlobals.CustomCommands;
+        var duplicateCommands = new List<Commands>();
+        var commandNames = new List<string>();
 
         foreach (var cmd in comms)
         {
@@ -120,7 +116,7 @@ public class RegisterCommands : IRegisterCommands
         }
         
         if (duplicateCommands.Count == 0)
-            return comms;
+            return;
 
         // Log the duplicate commands
         Logger.LogError($"------------------------------------------------------------------------");
@@ -136,10 +132,47 @@ public class RegisterCommands : IRegisterCommands
                 continue;
             }
             
-            commands.Add(comms[i]);
+            comms.Add(comms[i]);
         }
         Logger.LogError($"------------------------------------------------------------------------");
+    }
 
-        return commands;
+    public void ConvertingCommandsForRegister() 
+    {
+        var newCmds = new List<Commands>();
+
+        foreach (var cmd in PluginGlobals.CustomCommands)
+        {
+            var splitCommands = PluginUtilities.SplitStringByCommaOrSemicolon(cmd.Command);
+            splitCommands = PluginUtilities.AddCSSTagsToAliases(splitCommands.ToList()); 
+
+            foreach (var split in splitCommands)
+            {
+                var args = split.Split(' ');
+
+                if(args.Length == 1)
+                {
+                    var newCmd = cmd.Clone() as Commands;
+                    newCmd!.ID = Guid.NewGuid();
+                    newCmd.Command = split.Trim();
+                    newCmds.Add(newCmd);
+                } 
+                else if (args.Length > 1)
+                {
+                    var newCmd = cmd.Clone() as Commands;
+
+                    if (newCmds.Any(p => p.Command.Contains(args[0])))
+                        newCmd!.IsRegisterable = false;
+
+                    newCmd!.ID = Guid.NewGuid();
+                    newCmd.Command = args[0].Trim();
+                    args[0] = "";
+                    newCmd.Argument = string.Join(" ", args).Trim();
+                    newCmds.Add(newCmd);
+                }
+            }
+        }
+
+        PluginGlobals.CustomCommands = newCmds;
     }
 }
