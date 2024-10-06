@@ -7,22 +7,17 @@ using CustomCommands.Model;
 namespace CustomCommands.Services;
 public class MessageManager : IMessageManager
 {
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
-    private readonly PluginContext PluginContext;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly IReplaceTagsFunctions _replaceTagsFunctions;
+    private readonly PluginContext _pluginContext;
 
     public MessageManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions, IPluginContext PluginContext)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
-        this.PluginContext = (PluginContext as PluginContext)!;
+        _pluginGlobals = PluginGlobals;
+        _replaceTagsFunctions = ReplaceTagsFunctions;
+        _pluginContext = (PluginContext as PluginContext)!;
     }
 
-    /// <summary>
-    /// Sends a message based on the specified command and target receiver.
-    /// </summary>
-    /// <param name="player">The player who triggered the command.</param>
-    /// <param name="cmd">The command containing the message and target receiver.</param>
     public void SendMessage(CCSPlayerController player, Commands cmd) 
     {
         switch (cmd.PrintTo)
@@ -58,30 +53,28 @@ public class MessageManager : IMessageManager
 
     public void PrintToCenterClient(CCSPlayerController player, Commands cmd)
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-        
-        string message  = ReplaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
-        message         = ReplaceTagsFunctions.ReplaceMessageTags(message, player);
+        var context = (_pluginContext.Plugin as CustomCommands)!;
+        var message  = _replaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
+        message         = _replaceTagsFunctions.ReplaceMessageTags(message, player);
 
         var CenterClientElement = new CenterClientElement
         {
             ClientId = player.UserId!.Value,
             Message = message
         };
-        PluginGlobals.centerClientOn.Add(CenterClientElement);
-        plugin.AddTimer(cmd.CenterMessage.Time, () => PluginGlobals.centerClientOn.Remove(CenterClientElement));
+        _pluginGlobals.centerClientOn.Add(CenterClientElement);
+        context.AddTimer(cmd.CenterMessage.Time, () => _pluginGlobals.centerClientOn.Remove(CenterClientElement));
     }
 
     public void PrintToAllCenter(Commands cmd)
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-
-        PluginGlobals.centerServerOn.Message    = cmd.CenterMessage.Message;
-        PluginGlobals.centerServerOn.IsRunning  = true;
+        var context = (_pluginContext.Plugin as CustomCommands)!;
+        _pluginGlobals.centerServerOn.Message    = cmd.CenterMessage.Message;
+        _pluginGlobals.centerServerOn.IsRunning  = true;
         
-        plugin.AddTimer(cmd.CenterMessage.Time, () =>
+        context.AddTimer(cmd.CenterMessage.Time, () =>
         {
-            PluginGlobals.centerServerOn.IsRunning = false;
+            _pluginGlobals.centerServerOn.IsRunning = false;
         });
     }
 
@@ -99,7 +92,7 @@ public class MessageManager : IMessageManager
     
     public void PrintToChat(Receiver printToChat, CCSPlayerController player, dynamic message)
     {
-        string[] msg = ReplaceTagsFunctions.ReplaceTags(message, player);
+        var msg = _replaceTagsFunctions.ReplaceTags(message, player);
 
         switch (printToChat)
         {

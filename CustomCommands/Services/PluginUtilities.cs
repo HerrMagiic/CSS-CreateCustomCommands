@@ -9,18 +9,18 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomCommands.Services;
 
-public class PluginUtilities : IPluginUtilities
+public partial class PluginUtilities : IPluginUtilities
 {
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
-    private readonly ILogger<CustomCommands> Logger;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly IReplaceTagsFunctions _replaceTagsFunctions;
+    private readonly ILogger<CustomCommands> _logger;
 
     public PluginUtilities(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions,
                             ILogger<CustomCommands> Logger)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
-        this.Logger = Logger;
+        _pluginGlobals = PluginGlobals;
+        _replaceTagsFunctions = ReplaceTagsFunctions;
+        _logger = Logger;
     }
     
     public string[] AddCSSTagsToAliases(List<string> input)
@@ -32,17 +32,21 @@ public class PluginUtilities : IPluginUtilities
         }
         return input.ToArray();
     }
+    
+    [GeneratedRegex("[,;]")]
+    private static partial Regex SplitStringByCommaOrSemicolonRegex();
 
     public string[] SplitStringByCommaOrSemicolon(string str)
     {
-        return Regex.Split(str, "[,;]")
+        return SplitStringByCommaOrSemicolonRegex().Split(str)
                         .Where(s => !string.IsNullOrEmpty(s))
                         .ToArray();
     }
     
     public void ExecuteServerCommands(Commands cmd, CCSPlayerController player)
     {
-        if (cmd.ServerCommands.Count == 0) return;
+        if (cmd.ServerCommands.Count == 0) 
+            return;
 
         foreach (var serverCommand in cmd.ServerCommands)
         {
@@ -53,37 +57,42 @@ public class PluginUtilities : IPluginUtilities
                 continue;
             }
 
-            Server.ExecuteCommand(ReplaceTagsFunctions.ReplaceMessageTags(serverCommand, player));
+
+            Server.ExecuteCommand(_replaceTagsFunctions.ReplaceMessageTags(serverCommand, player));
         }
     }
     
     public void ExecuteClientCommands(Commands cmd, CCSPlayerController player)
     {
-        if (cmd.ClientCommands.Count == 0) return;
+        if (cmd.ClientCommands.Count == 0) 
+            return;
 
         foreach (var clientCommand in cmd.ClientCommands)
         {
-            player.ExecuteClientCommand(ReplaceTagsFunctions.ReplaceMessageTags(clientCommand, player));
+            player.ExecuteClientCommand(_replaceTagsFunctions.ReplaceMessageTags(clientCommand, player));
         }
     }
     
     public void ExecuteClientCommandsFromServer(Commands cmd, CCSPlayerController player)
     {
-        if (cmd.ClientCommandsFromServer.Count == 0) return;
+        if (cmd.ClientCommandsFromServer.Count == 0) 
+            return;
 
         foreach (var clientCommandsFromServer in cmd.ClientCommandsFromServer)
         {
-            player.ExecuteClientCommandFromServer(ReplaceTagsFunctions.ReplaceMessageTags(clientCommandsFromServer, player));
+            player.ExecuteClientCommandFromServer(_replaceTagsFunctions.ReplaceMessageTags(clientCommandsFromServer, player));
         }
     }
+    
     /// <summary>
     /// Handles the toggle command
     /// </summary>
     /// <param name="serverCommand"></param>
     private void HandleToggleCommand(string serverCommand)
     {
-        string commandWithoutToggle = serverCommand.Replace("toggle ", "");
+        var commandWithoutToggle = serverCommand.Replace("toggle ", "");
         var commandCvar = ConVar.Find(commandWithoutToggle);
+
         if (commandCvar != null)
         {
             if (commandCvar.GetPrimitiveValue<bool>())
@@ -93,7 +102,7 @@ public class PluginUtilities : IPluginUtilities
         }
         else
         {
-            Logger.LogError($"Couldn't toggle {commandWithoutToggle}. Please check if this command is toggleable");
+            _logger.LogError($"Couldn't toggle {commandWithoutToggle}. Please check if this command is toggleable");
         }
     }
     
@@ -106,14 +115,14 @@ public class PluginUtilities : IPluginUtilities
                 if (AdminManager.PlayerHasPermissions(player, new string[] { permission }))
                     return true;
             }
-            player.PrintToChat($"{PluginGlobals.Config.Prefix}You don't have the required permissions to execute this command");
+            player.PrintToChat($"{_pluginGlobals.Config.Prefix}You don't have the required permissions to execute this command");
             return false;
         }
         else
         {
             if (!AdminManager.PlayerHasPermissions(player, permissions.PermissionList.ToArray()))
             {
-                player.PrintToChat($"{PluginGlobals.Config.Prefix}You don't have the required permissions to execute this command");
+                player.PrintToChat($"{_pluginGlobals.Config.Prefix}You don't have the required permissions to execute this command");
                 return false;
             }
             return true;
