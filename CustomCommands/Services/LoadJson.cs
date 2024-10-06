@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
@@ -7,18 +8,18 @@ namespace CustomCommands.Services;
 
 public class LoadJson : ILoadJson
 {
-    private readonly ILogger<CustomCommands> Logger;
+    private readonly ILogger<CustomCommands> _logger;
     
     public LoadJson(ILogger<CustomCommands> Logger)
     {
-        this.Logger = Logger;
+        _logger = Logger;
     }
 
-    public List<Commands> GetCommandsFromJsonFiles(string path)
+    public async Task<List<Commands>> GetCommandsFromJsonFiles(string path)
     {
         var comms = new List<Commands>();
 
-        string defaultconfigpath = Path.Combine(path, "Commands.json");
+        var defaultconfigpath = Path.Combine(path, "Commands.json");
 
         CheckForExampleFile(path);
 
@@ -33,29 +34,43 @@ public class LoadJson : ILoadJson
         if (File.Exists(defaultconfigpath))
         {
             files.Add(defaultconfigpath);
-            Logger.LogInformation("Found default config file.");
+            _logger.LogInformation("Found default config file.");
         }
         else if (!File.Exists(defaultconfigpath) && files.Count == 0)
         {
-            Logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or in plugins/CustomCommands/Commands/<name>.json");
+            _logger.LogWarning("No Config file found. Please create plugins/CustomCommands/Commands.json or in plugins/CustomCommands/Commands/<name>.json");
             return comms;
         }
 
-        foreach (var file in files)
+        // Create a list of tasks to handle each file asynchronously
+        var tasks = files.Select(async file =>
         {
-            var json = File.ReadAllText(file);
+            var json = string.Empty;
+
+            // Read Unicode Characters asynchronously
+            using (var sr = new StreamReader(file, Encoding.UTF8))
+                json = await sr.ReadToEndAsync();
 
             // Validate the JSON file
-            if (!IsValidJsonSyntax(file))
-                continue;
+            if (!IsValidJsonSyntax(json, file))
+                return;
 
+            // Deserialize and validate the commands
             var commands = JsonSerializer.Deserialize<List<Commands>>(json);
             if (ValidateObject(commands, file))
-                comms.AddRange(commands!);
-        }
+            {
+                lock (comms) // Ensure thread-safety while adding to the shared list
+                {
+                    comms.AddRange(commands!);
+                }
+            }
+        });
+
+        await Task.WhenAll(tasks);
+
         return comms;
     }
-    // Check if the Command.json file exists. If not replace it with the example file
+    
     public void CheckForExampleFile(string path)
     {
         if (Directory.Exists(Path.Combine(path, "Commands")))
@@ -70,51 +85,52 @@ public class LoadJson : ILoadJson
         if (!File.Exists(defaultconfigpath))
         {
             File.Copy(exampleconfigpath, defaultconfigpath);
-            Logger.LogInformation("Created default config file.");
+            _logger.LogInformation("Created default config file.");
         }
     }
-    public bool IsValidJsonSyntax(string path)
+
+    public bool IsValidJsonSyntax(string json, string path)
     {
         try
         {
-            var json = File.ReadAllText(path);
             var document = JsonDocument.Parse(json);
             return true;
         }
         catch (JsonException ex)
         {
-            Logger.LogError($"Invalid JSON syntax in {path}. Please check the docs on how to create a valid JSON file");
-            Logger.LogError(ex.Message);
+            _logger.LogError($"Invalid JSON syntax in {path}. Please check the docs on how to create a valid JSON file");
+            _logger.LogError(ex.Message);
             return false;
         }
     }
+
     public bool ValidateObject(List<Commands>? comms, string path)
     {
         if (comms == null)
         {
-            Logger.LogError($"Invalid JSON format in {path}. Please check the docs on how to create a valid JSON file");
+            _logger.LogError($"Invalid JSON format in {path}. Please check the docs on how to create a valid JSON file");
             return false;
         }
-        bool commandstatus = true;
+        var commandstatus = true;
         for (int i = 0; i < comms.Count; i++)
         {
             commandstatus = true;
             // Title
             if (string.IsNullOrEmpty(comms[i].Title))
             {
-                Logger.LogWarning($"Title not set in {path}. Title is not required but recommended");
+                _logger.LogWarning($"Title not set in {path}. Title is not required but recommended");
                 commandstatus = false;
             }
             // Description
             if (string.IsNullOrEmpty(comms[i].Description))
             {
-                Logger.LogWarning($"Description not set in {path}. Description is not required but recommended. This will be shown in the help command");
+                _logger.LogWarning($"Description not set in {path}. Description is not required but recommended. This will be shown in the help command");
                 commandstatus = false;
             }
             // Command
             if (string.IsNullOrEmpty(comms[i].Command))
             {
-                Logger.LogError($"Command not set in {path}");
+                _logger.LogError($"Command not set in {path}");
                 commandstatus = false;
             }
             if (!PrintToCheck(comms[i]))
@@ -122,7 +138,7 @@ public class LoadJson : ILoadJson
 
             if (!commandstatus)
             {
-                Logger.LogError($"Command {comms[i].Command} will not be loaded. Index: {i}");
+                _logger.LogError($"Command {comms[i].Command} will not be loaded. Index: {i}");
                 LogCommandDetails(comms[i]);
             }
         }
@@ -133,16 +149,16 @@ public class LoadJson : ILoadJson
 
     public void LogCommandDetails(Commands comms)
     {
-        Logger.LogInformation($"-- Title: {comms.Title}");
-        Logger.LogInformation($"-- Description: {comms.Description}");
-        Logger.LogInformation($"-- Command: {comms.Command}");
-        Logger.LogInformation($"-- Message: {comms.Message}");
-        Logger.LogInformation($"-- CenterMessage: {comms.CenterMessage.Message}");
-        Logger.LogInformation($"-- CenterMessageTime: {comms.CenterMessage.Time}");
-        Logger.LogInformation($"-- PrintTo: {comms.PrintTo}");
-        Logger.LogInformation($"-- ServerCommands: {JsonSerializer.Serialize(comms.ServerCommands)}");
-        Logger.LogInformation($"-- PermissionList: {JsonSerializer.Serialize(comms.Permission)}");
-        Logger.LogInformation("--------------------------------------------------");
+        _logger.LogInformation($"-- Title: {comms.Title}");
+        _logger.LogInformation($"-- Description: {comms.Description}");
+        _logger.LogInformation($"-- Command: {comms.Command}");
+        _logger.LogInformation($"-- Message: {comms.Message}");
+        _logger.LogInformation($"-- CenterMessage: {comms.CenterMessage.Message}");
+        _logger.LogInformation($"-- CenterMessageTime: {comms.CenterMessage.Time}");
+        _logger.LogInformation($"-- PrintTo: {comms.PrintTo}");
+        _logger.LogInformation($"-- ServerCommands: {JsonSerializer.Serialize(comms.ServerCommands)}");
+        _logger.LogInformation($"-- PermissionList: {JsonSerializer.Serialize(comms.Permission)}");
+        _logger.LogInformation("--------------------------------------------------");
     }
 
     public bool PrintToCheck(Commands comms)
@@ -152,7 +168,7 @@ public class LoadJson : ILoadJson
 
             if (!ValidateMessage(comms.Message))
             {
-                Logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                _logger.LogError($"Message not set but needs to be set because PrintTo is set to {comms.PrintTo}");
                 return false;
             }
         }
@@ -160,7 +176,7 @@ public class LoadJson : ILoadJson
         {
             if (string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
-                Logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                _logger.LogError($"CenterMessage is not set but needs to be set because PrintTo is set to {comms.PrintTo}");
                 return false;
             }
         } 
@@ -168,7 +184,7 @@ public class LoadJson : ILoadJson
         {
             if (!ValidateMessage(comms.Message) && string.IsNullOrEmpty(comms.CenterMessage.Message))
             {
-                Logger.LogError($"Message and CenterMessage are not set but needs to be set because PrintTo is set to {comms.PrintTo}");
+                _logger.LogError($"Message and CenterMessage are not set but needs to be set because PrintTo is set to {comms.PrintTo}");
                 return false;
             }
         }

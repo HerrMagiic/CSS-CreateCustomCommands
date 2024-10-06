@@ -1,9 +1,24 @@
+## Colored Messages
+
+If you want to add Color to your chat message you need to use the color tags.
+
+Here are all color tags:
+
+### Colorlist
+
+![CS2Colors](../.github/img/ColorsCS2.png "CS2Colors")
+
+### Note
+
+If you want to add color to the Center Message check this out: [Color For CenterMessage](./CenterMessageWithColor.md)
+
+```json
 [
     {
         "Title": "Rainbow",
         "Description": "rainbow command",
         "Command": "rainbow",
-        "Message": "{RED}R{ORANGE}A{YELLOW}I{GREEN}N{BLUE}B{DARKBLUE}O{PURPLE}W", 
+        "Message": "{RED}R{ORANGE}A{YELLOW}I{GREEN}N{BLUE}B{DARKBLUE}O{PURPLE}W",
         "PrintTo": 0
     },
     {
@@ -14,3 +29,4 @@
         "PrintTo": 0
     }
 ]
+```
