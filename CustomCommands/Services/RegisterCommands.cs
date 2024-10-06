@@ -7,23 +7,23 @@ using Microsoft.Extensions.Logging;
 namespace CustomCommands.Services;
 public class RegisterCommands : IRegisterCommands
 {
-    private readonly ILogger<CustomCommands> Logger;
-    private readonly IMessageManager MessageManager;
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly PluginContext PluginContext;
-    private readonly IPluginUtilities PluginUtilities;
-    private readonly ICooldownManager CooldownManager;
+    private readonly ILogger<CustomCommands> _logger;
+    private readonly IMessageManager _messageManager;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly PluginContext _pluginContext;
+    private readonly IPluginUtilities _pluginUtilities;
+    private readonly ICooldownManager _cooldownManager;
 
     public RegisterCommands(ILogger<CustomCommands> Logger, IMessageManager MessageManager, 
                                 IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
                                 IPluginUtilities PluginUtilities, ICooldownManager CooldownManager)
     {
-        this.Logger = Logger;
-        this.MessageManager = MessageManager;
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.PluginUtilities = PluginUtilities;
-        this.CooldownManager = CooldownManager;
+        _logger = Logger;
+        _messageManager = MessageManager;
+        _pluginGlobals = PluginGlobals;
+        _pluginContext = (PluginContext as PluginContext)!;
+        _pluginUtilities = PluginUtilities;
+        _cooldownManager = CooldownManager;
     }
 
     public void AddCommands(Commands cmd)
@@ -31,9 +31,9 @@ public class RegisterCommands : IRegisterCommands
         if (!cmd.IsRegisterable)
             return;
 
-        var pluginContext = (PluginContext.Plugin as CustomCommands)!;
-
-        pluginContext.AddCommand(cmd.Command, cmd.Description, 
+        var context = (_pluginContext.Plugin as CustomCommands)!;
+        
+        context.AddCommand(cmd.Command, cmd.Description, 
             [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
             (player, info) =>
         {
@@ -45,7 +45,7 @@ public class RegisterCommands : IRegisterCommands
             // Check if the command has arguments and if it does, check if the command exists and is the right one
             if (info.ArgCount > 1)
             {
-                var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command == command.Command && x.Argument == info.ArgString);
+                var findcommand = _pluginGlobals.CustomCommands.Find(x => x.Command == command.Command && x.Argument == info.ArgString);
                 // Check if the command is the right one with the right arguments
                 if (findcommand is null) 
                 {
@@ -71,32 +71,32 @@ public class RegisterCommands : IRegisterCommands
             
             // Check if the player has the permission to use the command
             if (command!.Permission?.PermissionList.Count > 0 && command.Permission != null)
-                if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
+                if (!_pluginUtilities.RequiresPermissions(player, command.Permission)) 
                     return;
         
             // Check if the command is on cooldown
-            if(CooldownManager.IsCommandOnCooldown(player, command)) return;
+            if(_cooldownManager.IsCommandOnCooldown(player, command)) return;
 
             // Set the cooldown for the command if it has a cooldown set
-            CooldownManager.SetCooldown(player, command);
+            _cooldownManager.SetCooldown(player, command);
 
             // Sending the message to the player
-            MessageManager.SendMessage(player, command);
-
-            // Execute the server commands
-            PluginUtilities.ExecuteServerCommands(command, player);
+            _messageManager.SendMessage(player, command);
 
             // Execute the client commands
-            PluginUtilities.ExecuteClientCommands(command, player);
+            _pluginUtilities.ExecuteClientCommands(command, player);
 
             // Execute the client commands from the server
-            PluginUtilities.ExecuteClientCommandsFromServer(command, player);
+            _pluginUtilities.ExecuteClientCommandsFromServer(command, player);
+
+            // Execute the server commands
+            _pluginUtilities.ExecuteServerCommands(command, player);
         });
     }
 
     public void CheckForDuplicateCommands()
     {
-        var comms = PluginGlobals.CustomCommands;
+        var comms = _pluginGlobals.CustomCommands;
         var duplicateCommands = new List<Commands>();
         var commandNames = new List<string>();
 
@@ -119,32 +119,32 @@ public class RegisterCommands : IRegisterCommands
             return;
 
         // Log the duplicate commands
-        Logger.LogError($"------------------------------------------------------------------------");
-        Logger.LogError($"{PluginGlobals.Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
+        _logger.LogError($"------------------------------------------------------------------------");
+        _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
         for (int i = 0; i < comms.Count; i++)
         {
             if(duplicateCommands.Contains(comms[i]))
             {
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} Duplicate command found index {i+1}: ");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Title} ");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Description}");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Command}");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Duplicate command found index {i+1}: ");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Title} ");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Description}");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Command}");
                 continue;
             }
             
             comms.Add(comms[i]);
         }
-        Logger.LogError($"------------------------------------------------------------------------");
+        _logger.LogError($"------------------------------------------------------------------------");
     }
 
     public void ConvertingCommandsForRegister() 
     {
         var newCmds = new List<Commands>();
 
-        foreach (var cmd in PluginGlobals.CustomCommands)
+        foreach (var cmd in _pluginGlobals.CustomCommands)
         {
-            var splitCommands = PluginUtilities.SplitStringByCommaOrSemicolon(cmd.Command);
-            splitCommands = PluginUtilities.AddCSSTagsToAliases(splitCommands.ToList()); 
+            var splitCommands = _pluginUtilities.SplitStringByCommaOrSemicolon(cmd.Command);
+            splitCommands = _pluginUtilities.AddCSSTagsToAliases(splitCommands.ToList()); 
 
             foreach (var split in splitCommands)
             {
@@ -173,6 +173,6 @@ public class RegisterCommands : IRegisterCommands
             }
         }
 
-        PluginGlobals.CustomCommands = newCmds;
+        _pluginGlobals.CustomCommands = newCmds;
     }
 }
