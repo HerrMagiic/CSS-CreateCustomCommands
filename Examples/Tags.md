@@ -5,7 +5,7 @@ Here is a list of tags you can add to the message. Its also possible to use some
 The tags are always in {TAG} 
 
 
-```
+```json
 [
     {
         "Title": "Prefix",
@@ -89,6 +89,14 @@ The tags are always in {TAG}
         "Description": "Displays Player #userid",
         "Command": "userid",
         "Message": "Current players userid: {USERID}", // If you want to use this tag for commands add a # before the tag
+        "PrintTo": 0
+    }
+    },
+    {
+        "Title": "Random number",
+        "Description": "Displays a random number",
+        "Command": "random",
+        "Message": "This is a random number: {RNDNO=(10,20)}", // This generates a random number between 10 and 20
         "PrintTo": 0
     }
 ]
