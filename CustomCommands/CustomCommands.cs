@@ -18,15 +18,17 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
     private readonly IPluginGlobals _pluginGlobals;
     private readonly ILoadJson _loadJson;
     private readonly IEventManager _eventManager;
+    private readonly IReplaceTagsFunctions _replaceTagsFunctions;
 
     public CustomCommands(IRegisterCommands RegisterCommands, ILogger<CustomCommands> Logger, 
-                            IPluginGlobals PluginGlobals, ILoadJson LoadJson, IEventManager EventManager)
+                            IPluginGlobals PluginGlobals, ILoadJson LoadJson, IEventManager EventManager, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
         this.Logger = Logger;
         _registerCommands = RegisterCommands;
         _pluginGlobals = PluginGlobals;
         _loadJson = LoadJson;
         _eventManager = EventManager;
+        _replaceTagsFunctions = ReplaceTagsFunctions;
     }
 
     public void OnConfigParsed(CustomCommandsConfig config)
@@ -46,6 +48,7 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
             $"{ModuleName} loaded!");
 
         _pluginGlobals.Config = Config;
+        Config.Prefix = _replaceTagsFunctions.ReplaceColorTags(Config.Prefix);
 
         var comms = Task.Run(async () => await _loadJson.GetCommandsFromJsonFiles(ModuleDirectory)).Result;
 

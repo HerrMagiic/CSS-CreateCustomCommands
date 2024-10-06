@@ -15,6 +15,8 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
     private readonly IPluginGlobals _pluginGlobals;
     private readonly PluginContext _pluginContext;
     private readonly ILogger<CustomCommands> _logger;
+
+    private static readonly Random _random = new Random();
     
     public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
                                     ILogger<CustomCommands> Logger)
@@ -79,20 +81,30 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
         // Replace all occurrences of the RNDNO tag in the message
         var match = ReplaceRandomTagsRegex().Match(message);
 
+        // Check if the match is successful
+        if (!match.Success)
+        {
+            return message; // Return original message if no match is found
+        }
+
         // Extract min and max from the regex match groups
         string minStr = match.Groups[1].Value;
         string maxStr = match.Groups[2].Value;
+
+        // Check for empty strings
+        if (string.IsNullOrWhiteSpace(minStr) || string.IsNullOrWhiteSpace(maxStr))
+        {
+            return message; // Return original message if min or max is empty
+        }
 
         // Determine if the min and max are integers or floats
         bool isMinFloat = float.TryParse(minStr, out float minFloat);
         bool isMaxFloat = float.TryParse(maxStr, out float maxFloat);
 
-        var random = new Random();
-
-        if (isMinFloat || isMaxFloat)
+        if (isMinFloat && isMaxFloat)
         {
             // Generate a random float between min and max (inclusive)
-            float randomFloat = (float)(random.NextDouble() * (maxFloat - minFloat) + minFloat);
+            float randomFloat = (float)(_random.NextDouble() * (maxFloat - minFloat) + minFloat);
             
             // Determine the maximum precision from the min and max values
             int maxDecimalPlaces = Math.Max(GetDecimalPlaces(minStr), GetDecimalPlaces(maxStr));
@@ -100,17 +112,18 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
             // Use the determined precision to format the float
             message = message.Replace(match.Value, randomFloat.ToString($"F{maxDecimalPlaces}"));
         }
-        else
+        else if (int.TryParse(minStr, out int min) && int.TryParse(maxStr, out int max))
         {
-            // Parse as integers
-            int min = int.Parse(minStr);
-            int max = int.Parse(maxStr);
-
-            // Generate a random integer between min and max (inclusive)
-            int randomValue = random.Next(min, max + 1); // max is exclusive, so add 1
+            /// Generate a random integer between min and max (inclusive)
+            int randomValue = _random.Next(min, max + 1); // max is exclusive, so add 1
             message = message.Replace(match.Value, randomValue.ToString());
         }
-        
+        else
+        {
+            // If neither min nor max is valid, return the original message
+            return message;
+        }
+
         return message;
     }
 
