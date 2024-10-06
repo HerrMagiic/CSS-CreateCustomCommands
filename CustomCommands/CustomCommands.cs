@@ -9,24 +9,26 @@ namespace CustomCommands;
 public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsConfig>
 {
     public override string ModuleName => "CustomCommands";
-    public override string ModuleVersion => "2.1.0";
+    public override string ModuleVersion => "3.0.0";
     public override string ModuleAuthor => "HerrMagic";
     public override string ModuleDescription => "Create your own commands per config";
 
     public CustomCommandsConfig Config { get; set; } = new();
-    private readonly IRegisterCommands RegisterCommands;
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly ILoadJson LoadJson;
-    private readonly IEventManager EventManager;
+    private readonly IRegisterCommands _registerCommands;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly ILoadJson _loadJson;
+    private readonly IEventManager _eventManager;
+    private readonly IReplaceTagsFunctions _replaceTagsFunctions;
 
     public CustomCommands(IRegisterCommands RegisterCommands, ILogger<CustomCommands> Logger, 
-                            IPluginGlobals PluginGlobals, ILoadJson LoadJson, IEventManager EventManager)
+                            IPluginGlobals PluginGlobals, ILoadJson LoadJson, IEventManager EventManager, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
         this.Logger = Logger;
-        this.RegisterCommands = RegisterCommands;
-        this.PluginGlobals = PluginGlobals;
-        this.LoadJson = LoadJson;
-        this.EventManager = EventManager;
+        _registerCommands = RegisterCommands;
+        _pluginGlobals = PluginGlobals;
+        _loadJson = LoadJson;
+        _eventManager = EventManager;
+        _replaceTagsFunctions = ReplaceTagsFunctions;
     }
 
     public void OnConfigParsed(CustomCommandsConfig config)
@@ -45,9 +47,10 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
         Logger.LogInformation(
             $"{ModuleName} loaded!");
 
-        PluginGlobals.Config = Config;
+        _pluginGlobals.Config = Config;
+        Config.Prefix = _replaceTagsFunctions.ReplaceColorTags(Config.Prefix);
 
-        var comms = LoadJson.GetCommandsFromJsonFiles(ModuleDirectory);
+        var comms = Task.Run(async () => await _loadJson.GetCommandsFromJsonFiles(ModuleDirectory)).Result;
 
         if (comms == null)
         {
@@ -55,16 +58,18 @@ public partial class CustomCommands : BasePlugin, IPluginConfig<CustomCommandsCo
             return;
         }
         
-        EventManager.RegisterListeners();
+        _eventManager.RegisterListeners();
 
         if (comms != null) 
         {
-            PluginGlobals.CustomCommands = comms;
+            _pluginGlobals.CustomCommands = comms;
 
-            comms = RegisterCommands.CheckForDuplicateCommands(comms);
+            _registerCommands.CheckForDuplicateCommands();
+            _registerCommands.ConvertingCommandsForRegister();
+
             // Add commands from the JSON file to the server
-            foreach (var com in comms)
-                RegisterCommands.AddCommands(com);
+            foreach (var cmd in _pluginGlobals.CustomCommands)
+                _registerCommands.AddCommands(cmd);
         }
     }
 }

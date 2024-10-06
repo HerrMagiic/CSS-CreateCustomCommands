@@ -8,36 +8,37 @@ namespace CustomCommands.Services;
 
 public class EventManager : IEventManager
 {
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly PluginContext PluginContext;
-    private readonly IReplaceTagsFunctions ReplaceTagsFunctions;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly PluginContext _pluginContext;
+    private readonly IReplaceTagsFunctions _replaceTagsFunctions;
     
     public EventManager(IPluginGlobals PluginGlobals, IPluginContext PluginContext, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        _pluginGlobals          = PluginGlobals;
+        _pluginContext          = (PluginContext as PluginContext)!;
+        _replaceTagsFunctions   = ReplaceTagsFunctions;
     }
 
     [GameEventHandler]
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
-        PluginGlobals.centerClientOn.RemoveAll(p => p.ClientId == @event.Userid.UserId);
-        PluginGlobals.CooldownTimer.RemoveAll(p => p.PlayerID == @event.Userid.UserId);
+        _pluginGlobals.centerClientOn.RemoveAll(p => p.ClientId == @event.Userid.UserId);
+        _pluginGlobals.CooldownTimer.RemoveAll(p => p.PlayerID == @event.Userid.UserId);
 
         return HookResult.Continue;
     }
 
     public void RegisterListeners()
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+        var plugin = (_pluginContext.Plugin as CustomCommands)!;
 
+        // Register the OnTick event for PrintToCenterHtml duration
         plugin.RegisterListener<Listeners.OnTick>(() =>
         {
             // Client Print To Center
-            if(PluginGlobals.centerClientOn != null && PluginGlobals.centerClientOn.Count !> 0 )
+            if(_pluginGlobals.centerClientOn != null && _pluginGlobals.centerClientOn.Count !> 0 )
             {
-                foreach (var player in PluginGlobals.centerClientOn)
+                foreach (var player in _pluginGlobals.centerClientOn)
                 {
                     var targetPlayer = Utilities.GetPlayerFromUserid(player.ClientId);
                     if (player != null && targetPlayer != null)
@@ -48,14 +49,14 @@ public class EventManager : IEventManager
             }
             
             // Server Print To Center
-            if (PluginGlobals.centerServerOn.IsRunning)
+            if (_pluginGlobals.centerServerOn.IsRunning)
             {
                 Utilities.GetPlayers().ForEach(controller =>
                 {
                     if (!controller.IsValid || controller.SteamID == 0) return;
                     
-                    string message = ReplaceTagsFunctions.ReplaceLanguageTags(PluginGlobals.centerServerOn.Message);
-                    message = ReplaceTagsFunctions.ReplaceMessageTags(message, controller);
+                    var message = _replaceTagsFunctions.ReplaceLanguageTags(_pluginGlobals.centerServerOn.Message);
+                    message = _replaceTagsFunctions.ReplaceMessageTags(message, controller);
                     controller.PrintToCenterHtml(message, 1);
                 });
             }
@@ -63,8 +64,8 @@ public class EventManager : IEventManager
 
         plugin.RegisterListener<Listeners.OnMapEnd>(() =>
         {
-            PluginGlobals.centerClientOn.Clear();
-            PluginGlobals.CooldownTimer.Clear();
+            _pluginGlobals.centerClientOn.Clear();
+            _pluginGlobals.CooldownTimer.Clear();
         });
     }
 }

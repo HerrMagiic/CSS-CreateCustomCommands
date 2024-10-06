@@ -6,12 +6,13 @@ namespace CustomCommands.Interfaces;
 
 public class CooldownManager : ICooldownManager
 {
-    public IPluginGlobals PluginGlobals { get; }
-    public IReplaceTagsFunctions ReplaceTagsFunctions { get; }
+    public IPluginGlobals _pluginGlobals { get; }
+    public IReplaceTagsFunctions _replaceTagsFunctions { get; }
+    
     public CooldownManager(IPluginGlobals PluginGlobals, IReplaceTagsFunctions ReplaceTagsFunctions)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.ReplaceTagsFunctions = ReplaceTagsFunctions;
+        _pluginGlobals          = PluginGlobals;
+        _replaceTagsFunctions   = ReplaceTagsFunctions;
     }
     
     /// <summary>
@@ -33,32 +34,38 @@ public class CooldownManager : ICooldownManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if a command is on cooldown based on a given condition.
+    /// </summary>
+    /// <param name="predicate">The condition to check for each cooldown timer.</param>
+    /// <param name="player">The player controller.</param>
+    /// <param name="cmd">The command.</param>
+    /// <returns>True if the command is on cooldown, false otherwise.</returns>
     public bool IsCommandOnCooldownWithCondition(Func<CooldownTimer, bool> predicate, CCSPlayerController player, Commands cmd)
     {
-        int index = PluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
+        var index = _pluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
 
         if (index != -1)
         {
-            double totalSeconds = PluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
-            int totalSecondsRounded = (int)Math.Round(totalSeconds);
-            string timeleft = totalSecondsRounded.ToString();
-
-            string message = "";
+            var totalSeconds         = (double)_pluginGlobals.CooldownTimer[index].CooldownTime.Subtract(DateTime.Now).TotalSeconds;
+            var totalSecondsRounded     = (int)Math.Round(totalSeconds);
+            var timeleft             = totalSecondsRounded.ToString();
+            var message              = "";
             
             // This is ugly as fuck
             try
             {
-                Cooldown cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
+                var cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                 Console.WriteLine(cooldown.CooldownMessage);
                 string[] replaceTimeleft = {cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft)};
-                message = ReplaceTagsFunctions.ReplaceTags(replaceTimeleft, player)[0];
+                message = _replaceTagsFunctions.ReplaceTags(replaceTimeleft, player)[0];
             }
             catch (JsonException)
             {
                 message = $"This command is for {timeleft} seconds on cooldown";
             }
                 
-            player.PrintToChat($"{PluginGlobals.Config.Prefix}{message}");
+            player.PrintToChat($"{_pluginGlobals.Config.Prefix}{message}");
 
             return true;
         }
@@ -83,25 +90,25 @@ public class CooldownManager : ICooldownManager
 
         if (isGlobal)
         {
-            int index = PluginGlobals.CooldownTimer.FindIndex(x => 
+            int index = _pluginGlobals.CooldownTimer.FindIndex(x => 
                 x.IsGlobal == true 
                 && x.CommandID == commandID);
 
             if (index != -1)
-                PluginGlobals.CooldownTimer[index].CooldownTime = timer.CooldownTime;
+                _pluginGlobals.CooldownTimer[index].CooldownTime = timer.CooldownTime;
             else
-                PluginGlobals.CooldownTimer.Add(timer);
+                _pluginGlobals.CooldownTimer.Add(timer);
         }
         else
         {
             timer.PlayerID = playerID;
-            int index = PluginGlobals.CooldownTimer.FindIndex(x => 
+            int index = _pluginGlobals.CooldownTimer.FindIndex(x => 
                 x.PlayerID == playerID 
                 && x.CommandID == commandID);
             if (index != -1)
-                PluginGlobals.CooldownTimer[index].CooldownTime = timer.CooldownTime;
+                _pluginGlobals.CooldownTimer[index].CooldownTime = timer.CooldownTime;
             else
-                PluginGlobals.CooldownTimer.Add(timer);
+                _pluginGlobals.CooldownTimer.Add(timer);
         }
     }
 
@@ -118,7 +125,7 @@ public class CooldownManager : ICooldownManager
             {
                 case JsonValueKind.Number:
 
-                    int cooldown = cmd.Cooldown.GetInt32();
+                    var cooldown = cmd.Cooldown.GetInt32();
                     if (cooldown == 0) 
                         break;
 
@@ -129,7 +136,6 @@ public class CooldownManager : ICooldownManager
 
                     var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
                     AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
-                    
                     break;
 
                 default:

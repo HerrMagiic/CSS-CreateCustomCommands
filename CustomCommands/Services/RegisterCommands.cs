@@ -1,5 +1,5 @@
-using System.Text.Json;
 using CounterStrikeSharp.API.Core.Plugin;
+using CounterStrikeSharp.API.Modules.Commands;
 using CustomCommands.Interfaces;
 using CustomCommands.Model;
 using Microsoft.Extensions.Logging;
@@ -7,84 +7,108 @@ using Microsoft.Extensions.Logging;
 namespace CustomCommands.Services;
 public class RegisterCommands : IRegisterCommands
 {
-    private readonly ILogger<CustomCommands> Logger;
-    private readonly IMessageManager MessageManager;
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly PluginContext PluginContext;
-    private readonly IPluginUtilities PluginUtilities;
-    private readonly ICooldownManager CooldownManager;
+    private readonly ILogger<CustomCommands> _logger;
+    private readonly IMessageManager _messageManager;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly PluginContext _pluginContext;
+    private readonly IPluginUtilities _pluginUtilities;
+    private readonly ICooldownManager _cooldownManager;
 
     public RegisterCommands(ILogger<CustomCommands> Logger, IMessageManager MessageManager, 
                                 IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
                                 IPluginUtilities PluginUtilities, ICooldownManager CooldownManager)
     {
-        this.Logger = Logger;
-        this.MessageManager = MessageManager;
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.PluginUtilities = PluginUtilities;
-        this.CooldownManager = CooldownManager;
+        _logger = Logger;
+        _messageManager = MessageManager;
+        _pluginGlobals = PluginGlobals;
+        _pluginContext = (PluginContext as PluginContext)!;
+        _pluginUtilities = PluginUtilities;
+        _cooldownManager = CooldownManager;
     }
 
-    public void AddCommands(Commands com)
+    public void AddCommands(Commands cmd)
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
+        if (!cmd.IsRegisterable)
+            return;
+
+        var context = (_pluginContext.Plugin as CustomCommands)!;
         
-        string[] aliases = PluginUtilities.SplitStringByCommaOrSemicolon(com.Command);
-
-        for (int i = 0; i < aliases.Length; i++)
+        context.AddCommand(cmd.Command, cmd.Description, 
+            [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
+            (player, info) =>
         {
-            string alias = aliases[i];
-            plugin.AddCommand(alias, com.Description, (player, info) =>
+            if (player == null) 
+                return;
+
+            var command = cmd;
+
+            // Check if the command has arguments and if it does, check if the command exists and is the right one
+            if (info.ArgCount > 1)
             {
-                if (player == null) return;
-                
-                var command = com;
-
-                // Check if the command has arguments and if it does, check if the command exists and is the right one
-                if (info.ArgCount > 1)
+                var findcommand = _pluginGlobals.CustomCommands.Find(x => x.Command == command.Command && x.Argument == info.ArgString);
+                // Check if the command is the right one with the right arguments
+                if (findcommand is null) 
                 {
-                    var findcommand = PluginGlobals.CustomCommands.Find(x => x.Command.Contains(alias + $" {info.ArgString}"));
-                    // Check if the command is the right one with the right arguments
-                    if (findcommand! != command)
-                        return;
-
-                    command = findcommand;
-                }
-                // This will exit the command if the command has arguments but the client didn't provide any
-                if (command!.Command.Contains(alias + " ") && info.ArgCount <= 1) 
+                    player.PrintToChat("This command requires no Arguments or you added to many");
                     return;
+                }
+                
+                if (!findcommand.Argument!.Equals(info.ArgString)) 
+                {
+                    player.PrintToChat("Wrong Arguments");
+                    return;
+                }
 
-                if (command!.Permission.PermissionList.Count > 0 && command.Permission != null)
-                    if (!PluginUtilities.RequiresPermissions(player, command.Permission)) 
-                        return;
+                command = findcommand;
+            }
+
+            // This will exit the command if the command has arguments but the client didn't provide any
+            if (info.ArgCount <= 1 && !string.IsNullOrEmpty(command.Argument!)) 
+            {
+                player.PrintToChat("This command requires Arguments");
+                return;
+            }
             
-                if(CooldownManager.IsCommandOnCooldown(player, command)) return;
+            // Check if the player has the permission to use the command
+            if (command!.Permission?.PermissionList.Count > 0 && command.Permission != null)
+                if (!_pluginUtilities.RequiresPermissions(player, command.Permission)) 
+                    return;
+        
+            // Check if the command is on cooldown
+            if(_cooldownManager.IsCommandOnCooldown(player, command)) return;
 
-                CooldownManager.SetCooldown(player, command);
+            // Set the cooldown for the command if it has a cooldown set
+            _cooldownManager.SetCooldown(player, command);
 
-                MessageManager.SendMessage(player, command);
+            // Sending the message to the player
+            _messageManager.SendMessage(player, command);
 
-                PluginUtilities.ExecuteServerCommands(command, player);
-            });
-        }
+            // Execute the client commands
+            _pluginUtilities.ExecuteClientCommands(command, player);
+
+            // Execute the client commands from the server
+            _pluginUtilities.ExecuteClientCommandsFromServer(command, player);
+
+            // Execute the server commands
+            _pluginUtilities.ExecuteServerCommands(command, player);
+        });
     }
 
-    public List<Commands> CheckForDuplicateCommands(List<Commands> comms)
+    public void CheckForDuplicateCommands()
     {
-        List<Commands> duplicateCommands = new();
-        List<Commands> commands = new();
-        List<string> commandNames = new();
+        var comms = _pluginGlobals.CustomCommands;
+        var duplicateCommands = new List<Commands>();
+        var commandNames = new List<string>();
 
-        foreach (var com in comms)
+        foreach (var cmd in comms)
         {
-            string[] aliases = com.Command.Split(',');
+            string[] aliases = cmd.Command.Split(',');
 
             foreach (var alias in aliases)
             {
                 if (commandNames.Contains(alias.ToLower()))
                 {
-                    duplicateCommands.Add(com);
+                    duplicateCommands.Add(cmd);
                     continue;
                 }
                 commandNames.Add(alias.ToLower());
@@ -92,25 +116,63 @@ public class RegisterCommands : IRegisterCommands
         }
         
         if (duplicateCommands.Count == 0)
-            return comms;
+            return;
 
-        Logger.LogError($"------------------------------------------------------------------------");
-        Logger.LogError($"{PluginGlobals.Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
+        // Log the duplicate commands
+        _logger.LogError($"------------------------------------------------------------------------");
+        _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Duplicate commands found, removing them from the list. Please check your config file for duplicate commands and remove them.");
         for (int i = 0; i < comms.Count; i++)
         {
             if(duplicateCommands.Contains(comms[i]))
             {
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} Duplicate command found index {i+1}: ");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Title} ");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Description}");
-                Logger.LogError($"{PluginGlobals.Config.LogPrefix} - {comms[i].Command}");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Duplicate command found index {i+1}: ");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Title} ");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Description}");
+                _logger.LogError($"{_pluginGlobals.Config.LogPrefix} - {comms[i].Command}");
                 continue;
             }
             
-            commands.Add(comms[i]);
+            comms.Add(comms[i]);
         }
-        Logger.LogError($"------------------------------------------------------------------------");
+        _logger.LogError($"------------------------------------------------------------------------");
+    }
 
-        return commands;
+    public void ConvertingCommandsForRegister() 
+    {
+        var newCmds = new List<Commands>();
+
+        foreach (var cmd in _pluginGlobals.CustomCommands)
+        {
+            var splitCommands = _pluginUtilities.SplitStringByCommaOrSemicolon(cmd.Command);
+            splitCommands = _pluginUtilities.AddCSSTagsToAliases(splitCommands.ToList()); 
+
+            foreach (var split in splitCommands)
+            {
+                var args = split.Split(' ');
+
+                if(args.Length == 1)
+                {
+                    var newCmd = cmd.Clone() as Commands;
+                    newCmd!.ID = Guid.NewGuid();
+                    newCmd.Command = split.Trim();
+                    newCmds.Add(newCmd);
+                } 
+                else if (args.Length > 1)
+                {
+                    var newCmd = cmd.Clone() as Commands;
+
+                    if (newCmds.Any(p => p.Command.Contains(args[0])))
+                        newCmd!.IsRegisterable = false;
+
+                    newCmd!.ID = Guid.NewGuid();
+                    newCmd.Command = args[0].Trim();
+                    args[0] = "";
+                    newCmd.Argument = string.Join(" ", args).Trim();
+                    newCmds.Add(newCmd);
+                }
+            }
+        }
+
+        _pluginGlobals.CustomCommands = newCmds;
     }
 }

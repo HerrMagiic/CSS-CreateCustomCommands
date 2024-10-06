@@ -1,4 +1,4 @@
-name: .NET 7 Build and Release
+name: .NET 8 Build and Release
 
 on:
   pull_request:

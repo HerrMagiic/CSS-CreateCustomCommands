@@ -10,50 +10,57 @@ using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core.Plugin;
 
 namespace CustomCommands.Services;
-public class ReplaceTagsFunctions : IReplaceTagsFunctions
+public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
 {
-    private readonly IPluginGlobals PluginGlobals;
-    private readonly PluginContext PluginContext;
-    private readonly ILogger<CustomCommands> Logger;
+    private readonly IPluginGlobals _pluginGlobals;
+    private readonly PluginContext _pluginContext;
+    private readonly ILogger<CustomCommands> _logger;
+
+    private static readonly Random _random = new Random();
     
     public ReplaceTagsFunctions(IPluginGlobals PluginGlobals, IPluginContext PluginContext, 
                                     ILogger<CustomCommands> Logger)
     {
-        this.PluginGlobals = PluginGlobals;
-        this.PluginContext = (PluginContext as PluginContext)!;
-        this.Logger = Logger;
+        _pluginGlobals = PluginGlobals;
+        _pluginContext = (PluginContext as PluginContext)!;
+        _logger = Logger;
     }
 
-    public string[] ReplaceTags(string[] input, CCSPlayerController player)
+    public string[] ReplaceTags(dynamic input, CCSPlayerController player)
     {
-        string[] output = new string[input.Length];
+        var output = WrappedLine(input);
 
-        for (int i = 0; i < input.Length; i++)
+        for (int i = 0; i < output.Count; i++)
+            output[i] = ReplaceLanguageTags(output[i]);
+
+        output = WrappedLine(output.ToArray());
+
+        for (int i = 0; i < output.Count; i++)
         {
-            output[i] = ReplaceLanguageTags(input[i]);
             output[i] = ReplaceMessageTags(output[i], player, false);
+            output[i] = ReplaceRandomTags(output[i]);
             output[i] = ReplaceColorTags(output[i]);
         }
 
-        return output;
+        return output.ToArray();
     }
+
+    [GeneratedRegex(@"\{LANG=(.*?)\}")]
+    private static partial Regex ReplaceLanguageTagsRegex();
 
     public string ReplaceLanguageTags(string input)
     {
-        CustomCommands plugin = (PluginContext.Plugin as CustomCommands)!;
-
-        // Define the regex pattern to find "{LANG=...}"
-        string pattern = @"\{LANG=(.*?)\}";
-
         // Use Regex to find matches
-        Match match = Regex.Match(input, pattern);
+        var match = ReplaceLanguageTagsRegex().Match(input);
 
         // Check if a match is found
         if (match.Success)
         {
             // Return the group captured in the regex, which is the string after "="
-            string lang = match.Groups[1].Value;
-            return input.Replace(match.Value, plugin.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
+            var lang = match.Groups[1].Value;
+            var context = (_pluginContext.Plugin as CustomCommands)!;
+
+            return input.Replace(match.Value, context.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
         }
         else
         {
@@ -61,13 +68,83 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             return input;
         }
     }
+ 
+    /// <summary>
+    /// Use regex to find the RNDNO tag pattern {RNDNO={min, max}}
+    /// </summary>
+    /// <returns></returns>
+    [GeneratedRegex(@"\{RNDNO=\((\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)\)\}")]
+    private static partial Regex ReplaceRandomTagsRegex();
+
+    public string ReplaceRandomTags(string message)
+    {
+        // Replace all occurrences of the RNDNO tag in the message
+        var match = ReplaceRandomTagsRegex().Match(message);
+
+        // Check if the match is successful
+        if (!match.Success)
+        {
+            return message; // Return original message if no match is found
+        }
+
+        // Extract min and max from the regex match groups
+        string minStr = match.Groups[1].Value;
+        string maxStr = match.Groups[2].Value;
+
+        // Check for empty strings
+        if (string.IsNullOrWhiteSpace(minStr) || string.IsNullOrWhiteSpace(maxStr))
+        {
+            return message; // Return original message if min or max is empty
+        }
+
+        // Determine if the min and max are integers or floats
+        bool isMinFloat = float.TryParse(minStr, out float minFloat);
+        bool isMaxFloat = float.TryParse(maxStr, out float maxFloat);
+
+        if (isMinFloat && isMaxFloat)
+        {
+            // Generate a random float between min and max (inclusive)
+            float randomFloat = (float)(_random.NextDouble() * (maxFloat - minFloat) + minFloat);
+            
+            // Determine the maximum precision from the min and max values
+            int maxDecimalPlaces = Math.Max(GetDecimalPlaces(minStr), GetDecimalPlaces(maxStr));
+
+            // Use the determined precision to format the float
+            message = message.Replace(match.Value, randomFloat.ToString($"F{maxDecimalPlaces}"));
+        }
+        else if (int.TryParse(minStr, out int min) && int.TryParse(maxStr, out int max))
+        {
+            /// Generate a random integer between min and max (inclusive)
+            int randomValue = _random.Next(min, max + 1); // max is exclusive, so add 1
+            message = message.Replace(match.Value, randomValue.ToString());
+        }
+        else
+        {
+            // If neither min nor max is valid, return the original message
+            return message;
+        }
+
+        return message;
+    }
+
+    // Method to get the number of decimal places in a number string
+    private static int GetDecimalPlaces(string numberStr)
+    {
+        int decimalIndex = numberStr.IndexOf('.');
+        if (decimalIndex == -1)
+        {
+            return 0; // No decimal point, return 0
+        }
+        return numberStr.Length - decimalIndex - 1; // Count digits after the decimal point
+    }
+
     public string ReplaceMessageTags(string input, CCSPlayerController player, bool safety = true)
     {
-        SteamID steamId = new SteamID(player.SteamID);
+        var steamId = new SteamID(player.SteamID);
         
         Dictionary<string, string> replacements = new()
         {
-            {"{PREFIX}", PluginGlobals.Config.Prefix ?? "<PREFIX not found>"},
+            {"{PREFIX}", _pluginGlobals.Config.Prefix ?? "<PREFIX not found>"},
             {"{MAP}", NativeAPI.GetMapName() ?? "<MAP not found>"},
             {"{TIME}", DateTime.Now.ToString("HH:mm:ss") ?? "<TIME not found>"},
             {"{DATE}", DateTime.Now.ToString("dd.MM.yyyy") ?? "<DATE not found>"},
@@ -81,7 +158,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
             {"{PORT}", ConVar.Find("hostport")!.GetPrimitiveValue<int>().ToString() ?? "<PORT not found>"},
             {"{MAXPLAYERS}", Server.MaxPlayers.ToString() ?? "<MAXPLAYERS not found>"},
             {"{PLAYERS}",
-                Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"}
+                Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"},
         };
 
         // Prevent vounrability by not replacing {PLAYERNAME} if safety is true/ServerCommands are being executed
@@ -103,7 +180,7 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         {
             {"{DEFAULT}", $"{ChatColors.Default}"},
             {"{WHITE}", $"{ChatColors.White}"},
-            {"{DARKRED}", $"{ChatColors.Darkred}"},
+            {"{DARKRED}", $"{ChatColors.DarkRed}"},
             {"{RED}", $"{ChatColors.Red}"},
             {"{LIGHTRED}", $"{ChatColors.LightRed}"},
             {"{GREEN}", $"{ChatColors.Green}"},
@@ -127,43 +204,44 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
         return input;
     }
 
-    /// <summary>
-    /// Splits the input into an array of strings. If the input is a string, it will be split by newlines. If the input is an array, each element will be split by newlines.
-    /// </summary>
-    /// <param name="input">This should be a string[] or a string</param>
-    /// <returns>An array of strings representing the lines of the input.</returns>
-    public string[] WrappedLine(dynamic input)
+    public List<string> WrappedLine(dynamic input)
     {
-        List<string> output = new List<string>();
+        var output = new List<string>();
 
         if (input is JsonElement jsonElement)
         {
             switch (jsonElement.ValueKind)
             {
                 case JsonValueKind.String:
-                    string result = jsonElement.GetString()!;
-                    return result?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
-
+                    var result = jsonElement.GetString()!;
+                    output.AddRange(result.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+                    break;
                 case JsonValueKind.Array:
                     foreach (var arrayElement in jsonElement.EnumerateArray())
                     {
-                        string[] lines = arrayElement.GetString()?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                        var lines = arrayElement.GetString()?.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
                         output.AddRange(lines);
                     }
                     break;
 
                 default:
-                    Logger.LogError($"{PluginGlobals.Config.LogPrefix} Message is not a string or array");
-                    return Array.Empty<string>();
+                    _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Message is not a string or array");
+                    break;
+            }
+        } else if (input is Array inputArray)
+        {
+            foreach (string arrayElement in inputArray)
+            {
+                var lines = arrayElement.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None) ?? Array.Empty<string>();
+                output.AddRange(lines);
             }
         }
         else
         {
-            Logger.LogError($"{PluginGlobals.Config.LogPrefix} Invalid input type");
-            return Array.Empty<string>();
+            _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Invalid input type");
         }
 
-        return output.ToArray();
+        return output;
     }
 
     /// <summary>
@@ -172,9 +250,9 @@ public class ReplaceTagsFunctions : IReplaceTagsFunctions
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    private string PadLeftColorTag(string input)
+    private static string PadLeftColorTag(string input)
     {
-        string[] colorTagList = new string[] {
+        var colorTagList = new string[] {
             "{DEFAULT}",
             "{WHITE}",
             "{DARKRED}",

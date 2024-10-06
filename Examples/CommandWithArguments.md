@@ -1,3 +1,9 @@
+## Command with Arguments
+
+You can also create your own commands with arguments/numbers after it.
+
+
+```json
 [
     {
         "Title": "Arguments 1",
@@ -14,3 +20,4 @@
         "PrintTo": 0
     }
 ]
+```
