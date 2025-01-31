@@ -40,7 +40,7 @@ Example:
         "Command": "noclip",
         "Message": "Noclip...",
         "PrintTo": 0,
-        "ServerCommands": [
+        "ClientCommandsFromServer ": [
             "noclip"
         ]
     }
