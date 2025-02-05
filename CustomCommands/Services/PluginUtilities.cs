@@ -57,7 +57,6 @@ public partial class PluginUtilities : IPluginUtilities
                 continue;
             }
 
-
             Server.ExecuteCommand(_replaceTagsFunctions.ReplaceMessageTags(serverCommand, player));
         }
     }

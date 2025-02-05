@@ -50,23 +50,18 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
 
     public string ReplaceLanguageTags(string input)
     {
-        // Use Regex to find matches
         var match = ReplaceLanguageTagsRegex().Match(input);
 
-        // Check if a match is found
-        if (match.Success)
+        if (!match.Success)
         {
-            // Return the group captured in the regex, which is the string after "="
-            var lang = match.Groups[1].Value;
-            var context = (_pluginContext.Plugin as CustomCommands)!;
-
-            return input.Replace(match.Value, context.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
-        }
-        else
-        {
-            // Return the original string if no match is found
             return input;
         }
+
+        // Return the group captured in the regex, which is the string after "="
+        var lang = match.Groups[1].Value;
+        var context = (_pluginContext.Plugin as CustomCommands)!;
+
+        return input.Replace(match.Value, context.Localizer[lang] ?? "<LANG in CustomCommands/lang/<language.json> not found>");
     }
  
     /// <summary>
@@ -81,33 +76,31 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
         // Replace all occurrences of the RNDNO tag in the message
         var match = ReplaceRandomTagsRegex().Match(message);
 
-        // Check if the match is successful
         if (!match.Success)
         {
-            return message; // Return original message if no match is found
+            return message;
         }
 
         // Extract min and max from the regex match groups
-        string minStr = match.Groups[1].Value;
-        string maxStr = match.Groups[2].Value;
+        var minStr = match.Groups[1].Value;
+        var maxStr = match.Groups[2].Value;
 
         // Check for empty strings
         if (string.IsNullOrWhiteSpace(minStr) || string.IsNullOrWhiteSpace(maxStr))
         {
-            return message; // Return original message if min or max is empty
+            return message;
         }
 
-        // Determine if the min and max are integers or floats
-        bool isMinFloat = float.TryParse(minStr, out float minFloat);
-        bool isMaxFloat = float.TryParse(maxStr, out float maxFloat);
+        var isMinFloat = float.TryParse(minStr, out float minFloat);
+        var isMaxFloat = float.TryParse(maxStr, out float maxFloat);
 
         if (isMinFloat && isMaxFloat)
         {
             // Generate a random float between min and max (inclusive)
-            float randomFloat = (float)(_random.NextDouble() * (maxFloat - minFloat) + minFloat);
+            var randomFloat = (float)(_random.NextDouble() * (maxFloat - minFloat) + minFloat);
             
             // Determine the maximum precision from the min and max values
-            int maxDecimalPlaces = Math.Max(GetDecimalPlaces(minStr), GetDecimalPlaces(maxStr));
+            var maxDecimalPlaces = Math.Max(GetDecimalPlaces(minStr), GetDecimalPlaces(maxStr));
 
             // Use the determined precision to format the float
             message = message.Replace(match.Value, randomFloat.ToString($"F{maxDecimalPlaces}"));
@@ -120,7 +113,6 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
         }
         else
         {
-            // If neither min nor max is valid, return the original message
             return message;
         }
 
@@ -133,7 +125,7 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
         int decimalIndex = numberStr.IndexOf('.');
         if (decimalIndex == -1)
         {
-            return 0; // No decimal point, return 0
+            return 0;
         }
         return numberStr.Length - decimalIndex - 1; // Count digits after the decimal point
     }
@@ -161,7 +153,7 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
                 Utilities.GetPlayers().Count(u => u.PlayerPawn.Value != null && u.PlayerPawn.Value.IsValid).ToString() ?? "<PLAYERS not found>"},
         };
 
-        // Prevent vounrability by not replacing {PLAYERNAME} if safety is true/ServerCommands are being executed
+        // Prevent vulnerability by not replacing {PLAYERNAME} if safety is true/ServerCommands are being executed
         if (!safety)
             replacements.Add("{PLAYERNAME}", player.PlayerName ?? "<PLAYERNAME not found>");
 
@@ -228,7 +220,8 @@ public partial class ReplaceTagsFunctions : IReplaceTagsFunctions
                     _logger.LogError($"{_pluginGlobals.Config.LogPrefix} Message is not a string or array");
                     break;
             }
-        } else if (input is Array inputArray)
+        } 
+        else if (input is Array inputArray)
         {
             foreach (string arrayElement in inputArray)
             {

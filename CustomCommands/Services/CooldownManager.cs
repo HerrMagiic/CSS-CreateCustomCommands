@@ -52,11 +52,9 @@ public class CooldownManager : ICooldownManager
             var timeleft             = totalSecondsRounded.ToString();
             var message              = "";
             
-            // This is ugly as fuck
             try
             {
                 var cooldown = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
-                Console.WriteLine(cooldown.CooldownMessage);
                 string[] replaceTimeleft = {cooldown.CooldownMessage.Replace("{TIMELEFT}", timeleft)};
                 message = _replaceTagsFunctions.ReplaceTags(replaceTimeleft, player)[0];
             }
@@ -119,28 +117,30 @@ public class CooldownManager : ICooldownManager
     /// <param name="cmd"></param>
     public void SetCooldown(CCSPlayerController player, Commands cmd)
     {
-        if (cmd.Cooldown is JsonElement jsonElement)
+        if (cmd.Cooldown is not JsonElement jsonElement)
         {
-            switch (jsonElement.ValueKind)
-            {
-                case JsonValueKind.Number:
+            return;
+        }
+        
+        switch (jsonElement.ValueKind)
+        {
+            case JsonValueKind.Number:
 
-                    var cooldown = cmd.Cooldown.GetInt32();
-                    if (cooldown == 0) 
-                        break;
-
-                    AddToCooldownList(false, player.UserId ?? 0, cmd.ID, cooldown);
+                var cooldown = cmd.Cooldown.GetInt32();
+                if (cooldown == 0) 
                     break;
 
-                case JsonValueKind.Object:
+                AddToCooldownList(false, player.UserId ?? 0, cmd.ID, cooldown);
+                break;
 
-                    var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
-                    AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
-                    break;
+            case JsonValueKind.Object:
 
-                default:
-                    break;
-            }
+                var cooldownObject = JsonSerializer.Deserialize<Cooldown>(cmd.Cooldown.GetRawText());
+                AddToCooldownList(cooldownObject.IsGlobal, player.UserId ?? 0, cmd.ID, cooldownObject.CooldownTime);
+                break;
+
+            default:
+                break;
         }
     }
 }

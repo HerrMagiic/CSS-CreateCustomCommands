@@ -22,8 +22,8 @@ public class EventManager : IEventManager
     [GameEventHandler]
     public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo _)
     {
-        _pluginGlobals.centerClientOn.RemoveAll(p => p.ClientId == @event.Userid.UserId);
-        _pluginGlobals.CooldownTimer.RemoveAll(p => p.PlayerID == @event.Userid.UserId);
+        _pluginGlobals.centerClientOn.RemoveAll(p => p.ClientId == @event.Userid?.UserId);
+        _pluginGlobals.CooldownTimer.RemoveAll(p => p.PlayerID == @event.Userid?.UserId);
 
         return HookResult.Continue;
     }
@@ -53,7 +53,8 @@ public class EventManager : IEventManager
             {
                 Utilities.GetPlayers().ForEach(controller =>
                 {
-                    if (!controller.IsValid || controller.SteamID == 0) return;
+                    if (!controller.IsValid || controller.SteamID == 0) 
+                        return;
                     
                     var message = _replaceTagsFunctions.ReplaceLanguageTags(_pluginGlobals.centerServerOn.Message);
                     message = _replaceTagsFunctions.ReplaceMessageTags(message, controller);

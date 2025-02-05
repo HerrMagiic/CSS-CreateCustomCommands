@@ -53,8 +53,8 @@ public class MessageManager : IMessageManager
 
     public void PrintToCenterClient(CCSPlayerController player, Commands cmd)
     {
-        var context = (_pluginContext.Plugin as CustomCommands)!;
-        var message  = _replaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
+        var context     = (_pluginContext.Plugin as CustomCommands)!;
+        var message     = _replaceTagsFunctions.ReplaceLanguageTags(cmd.CenterMessage.Message);
         message         = _replaceTagsFunctions.ReplaceMessageTags(message, player);
 
         var CenterClientElement = new CenterClientElement
@@ -69,8 +69,8 @@ public class MessageManager : IMessageManager
     public void PrintToAllCenter(Commands cmd)
     {
         var context = (_pluginContext.Plugin as CustomCommands)!;
-        _pluginGlobals.centerServerOn.Message    = cmd.CenterMessage.Message;
-        _pluginGlobals.centerServerOn.IsRunning  = true;
+        _pluginGlobals.centerServerOn.Message = cmd.CenterMessage.Message;
+        _pluginGlobals.centerServerOn.IsRunning = true;
         
         context.AddTimer(cmd.CenterMessage.Time, () =>
         {

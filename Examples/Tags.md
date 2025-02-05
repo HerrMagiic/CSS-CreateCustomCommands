@@ -90,7 +90,6 @@ The tags are always in {TAG}
         "Command": "userid",
         "Message": "Current players userid: {USERID}", // If you want to use this tag for commands add a # before the tag
         "PrintTo": 0
-    }
     },
     {
         "Title": "Random number",
