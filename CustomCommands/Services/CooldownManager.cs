@@ -15,12 +15,6 @@ public class CooldownManager : ICooldownManager
         _replaceTagsFunctions   = ReplaceTagsFunctions;
     }
     
-    /// <summary>
-    /// Checks if the command is on cooldown
-    /// </summary>
-    /// <param name="player"></param>
-    /// <param name="cmd"></param>
-    /// <returns></returns>
     public bool IsCommandOnCooldown(CCSPlayerController player, Commands cmd)
     {
         // Check global cooldown
@@ -34,13 +28,6 @@ public class CooldownManager : ICooldownManager
         return false;
     }
 
-    /// <summary>
-    /// Checks if a command is on cooldown based on a given condition.
-    /// </summary>
-    /// <param name="predicate">The condition to check for each cooldown timer.</param>
-    /// <param name="player">The player controller.</param>
-    /// <param name="cmd">The command.</param>
-    /// <returns>True if the command is on cooldown, false otherwise.</returns>
     public bool IsCommandOnCooldownWithCondition(Func<CooldownTimer, bool> predicate, CCSPlayerController player, Commands cmd)
     {
         var index = _pluginGlobals.CooldownTimer.FindIndex(x => predicate(x) && x.CooldownTime > DateTime.Now);
@@ -71,13 +58,6 @@ public class CooldownManager : ICooldownManager
         return false;
     }
     
-    /// <summary>
-    /// Adds the command to the cooldown list
-    /// </summary>
-    /// <param name="isGlobal"></param>
-    /// <param name="playerID"></param>
-    /// <param name="commandID"></param>
-    /// <param name="cooldownTime"></param>
     public void AddToCooldownList(bool isGlobal, int playerID, Guid commandID, int cooldownTime)
     {
         var timer = new CooldownTimer() {
@@ -110,18 +90,13 @@ public class CooldownManager : ICooldownManager
         }
     }
 
-    /// <summary>
-    /// Sets the cooldown for the command
-    /// </summary>
-    /// <param name="player">Need to add the player if the Cooldown is only for a specific player</param>
-    /// <param name="cmd"></param>
     public void SetCooldown(CCSPlayerController player, Commands cmd)
     {
         if (cmd.Cooldown is not JsonElement jsonElement)
         {
             return;
         }
-        
+
         switch (jsonElement.ValueKind)
         {
             case JsonValueKind.Number:
